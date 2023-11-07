@@ -44,7 +44,7 @@ GAMECUBE:
 
 #include "pins.h"
 
-#define DATA_PIN OR_PIN_2
+#define DATA_PIN_64M OR_PIN_2
 
 // how often to poll, 100? 14? polling must not occur faster than every 20 ms
 #define POLL_DELAY 14
@@ -94,7 +94,7 @@ typedef N64_Report_t ControllerReport;
 #endif
 
 // Define a Controller
-NintendoController controller(DATA_PIN);
+NintendoController controller(DATA_PIN_64M);
 
 uint8_t oldReport[NINTENDO_REPORT_SIZE];
 
@@ -154,9 +154,13 @@ void print_report(ControllerReport &controller) {
 }
 #endif
 
+#ifdef UNIVERSAL_MODE
+void setup_m64() {
+#else
 void setup() {
+#endif
 	// n64 low because it *should* be 3.3V
-	digitalWrite(DATA_PIN, LOW);
+	digitalWrite(DATA_PIN_64M, LOW);
 #ifdef DEBUG
 	Serial.begin(115200);
 	if (controller.begin()) {
@@ -171,7 +175,11 @@ void setup() {
 	gamepad.begin();
 }
 
+#ifdef UNIVERSAL_MODE
+void loop_m64() {
+#else
 void loop() {
+#endif
 	delay(POLL_DELAY);
 	// Try to read the controller data
 	if (controller.read()) {

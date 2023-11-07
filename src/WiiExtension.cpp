@@ -37,76 +37,76 @@ Wii Nunchuck/Wii Classic/SNES+NES Classic:
 #include "gamepad/Gamepad.h"
 #include "util.cpp"
 
-GAMEPAD_CLASS gamepad;
+GAMEPAD_CLASS gamepadWii;
 
-ExtensionPort port;	 // Port for communicating with extension controllers
+ExtensionPort port;	 // Port for communicating with extension controllersWii
 
 Nunchuk::Shared nchuk(port);			  // Read Nunchuk formatted data from the port
 ClassicController::Shared classic(port);  // Read Classic Controller formatted data from the port
 
-NintendoExtensionCtrl::ExtensionController* controllers[] = {
-	// Array of available controllers, for controller-specific init
+NintendoExtensionCtrl::ExtensionController* controllersWii[] = {
+	// Array of available controllersWii, for controller-specific init
 	&nchuk,
 	&classic,
 };
 
-const int NumControllers = sizeof(controllers) / sizeof(NintendoExtensionCtrl::ExtensionController*);	// # of controllers, auto-generated
+const int NumControllers = sizeof(controllersWii) / sizeof(NintendoExtensionCtrl::ExtensionController*);	// # of controllersWii, auto-generated
 
-void (*controllerChanged)();
+void (*controllerChangedWii)();
 
 const uint8_t c = 0;  // for now just do 1 pad
 
 void nunchuckChanged() {
 	//nchuk.printDebug(); return;
-	gamepad.buttons(c, 0);
+	gamepadWii.buttons(c, 0);
 	if (nchuk.buttonC()) {
-		gamepad.press(c, BUTTON_A);
+		gamepadWii.press(c, BUTTON_A);
 	}
 	if (nchuk.buttonZ()) {
-		gamepad.press(c, BUTTON_B);
+		gamepadWii.press(c, BUTTON_B);
 	}
 	// todo: anything with roll/pitch/accel ?
-	gamepad.setAxis(c, translateAxis(nchuk.joyX()), -translateAxis(nchuk.joyY()), 0, 0, 0, 0, DPAD_CENTER);
+	gamepadWii.setAxis(c, translateAxis(nchuk.joyX()), -translateAxis(nchuk.joyY()), 0, 0, 0, 0, DPAD_CENTER);
 }
 
 void classicChanged() {
 	//classic.printDebug(); return;
-	gamepad.buttons(c, 0);
+	gamepadWii.buttons(c, 0);
 	if (classic.buttonA()) {
-		gamepad.press(c, BUTTON_A);
+		gamepadWii.press(c, BUTTON_A);
 	}
 	if (classic.buttonB()) {
-		gamepad.press(c, BUTTON_B);
+		gamepadWii.press(c, BUTTON_B);
 	}
 	if (classic.buttonY()) {
-		gamepad.press(c, BUTTON_Y);
+		gamepadWii.press(c, BUTTON_Y);
 	}
 	if (classic.buttonX()) {
-		gamepad.press(c, BUTTON_X);
+		gamepadWii.press(c, BUTTON_X);
 	}
 	if (classic.buttonZL()) {
-		gamepad.press(c, BUTTON_L);
+		gamepadWii.press(c, BUTTON_L);
 	}
 	if (classic.buttonZR()) {
-		gamepad.press(c, BUTTON_R);
+		gamepadWii.press(c, BUTTON_R);
 	}
 	if (classic.buttonL()) {
-		gamepad.press(c, BUTTON_TL2);
+		gamepadWii.press(c, BUTTON_TL2);
 	}
 	if (classic.buttonR()) {
-		gamepad.press(c, BUTTON_TR2);
+		gamepadWii.press(c, BUTTON_TR2);
 	}
 	if (classic.buttonPlus()) {
-		gamepad.press(c, BUTTON_PLUS);
+		gamepadWii.press(c, BUTTON_PLUS);
 	}
 	if (classic.buttonMinus()) {
-		gamepad.press(c, BUTTON_MINUS);
+		gamepadWii.press(c, BUTTON_MINUS);
 	}
 	if (classic.buttonHome()) {
-		gamepad.press(c, BUTTON_HOME);
+		gamepadWii.press(c, BUTTON_HOME);
 	}
 	auto hat = calculateDpadDirection(classic.dpadUp(), classic.dpadDown(), classic.dpadLeft(), classic.dpadRight());
-	gamepad.setAxis(c,
+	gamepadWii.setAxis(c,
 					translateAxis(classic.leftJoyX()),
 					-translateAxis(classic.leftJoyY()),
 					translateAxis(classic.rightJoyX()),
@@ -121,16 +121,16 @@ boolean connectController() {
 
 	if (connected == true) {
 		for (int i = 0; i < NumControllers; i++) {
-			if (controllers[i]->controllerTypeMatches()) {	 // If this controller is connected...
-				connected = controllers[i]->specificInit();	 // ...run the controller-specific initialization
+			if (controllersWii[i]->controllerTypeMatches()) {	 // If this controller is connected...
+				connected = controllersWii[i]->specificInit();	 // ...run the controller-specific initialization
 				if (connected == true) {
 					ExtensionType conType = port.getControllerType();
 					switch (conType) {
 						case (ExtensionType::Nunchuk):
-							controllerChanged = nunchuckChanged;
+							controllerChangedWii = nunchuckChanged;
 							break;
 						case (ExtensionType::ClassicController):
-							controllerChanged = classicChanged;
+							controllerChangedWii = classicChanged;
 							break;
 						default:
 							//Serial.println("Other controller connected!");
@@ -144,10 +144,13 @@ boolean connectController() {
 
 	return connected;
 }
-
+#ifdef UNIVERSAL_MODE
+void setup_wii() {
+#else
 void setup() {
+#endif
 	setupBrLed();
-	gamepad.begin();
+	gamepadWii.begin();
 	port.begin();  // init I2C
 
 	while (!connectController()) {
@@ -156,12 +159,16 @@ void setup() {
 	}
 }
 
+#ifdef UNIVERSAL_MODE
+void loop_wii() {
+#else
 void loop() {
+#endif
 	boolean success = port.update();  // Get new data from the controller
 
 	if (success == true) {	// We've got data!
 		// todo: only call this if data changed?
-		controllerChanged();
+		controllerChangedWii();
 	} else {  // Data is bad :(
 		while (!connectController()) {
 			//Serial.println("Controller Disconnected!");

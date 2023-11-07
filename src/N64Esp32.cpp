@@ -16,7 +16,7 @@ PIN # USAGE
 
 #include "pins.h"
 
-#define DATA_PIN OR_PIN_2
+#define DATA_PIN_64 OR_PIN_2
 
 //#define PRINT_Y_AXIS_VALUES 1
 //#define PRINT_X_AXIS_VALUES 1
@@ -35,8 +35,8 @@ PIN # USAGE
 #include "gamepad/Gamepad.h"
 #include "util.cpp"
 
-#define LINE_WRITE_HIGH pinMode(DATA_PIN, INPUT_PULLUP)
-#define LINE_WRITE_LOW pinMode(DATA_PIN, OUTPUT)
+#define LINE_WRITE_HIGH pinMode(DATA_PIN_64, INPUT_PULLUP)
+#define LINE_WRITE_LOW pinMode(DATA_PIN_64, OUTPUT)
 
 #define DATA_SIZE 2048	// number of sample points to poll
 #define CALIBRATE_PASSES 5
@@ -53,7 +53,7 @@ int lastIndex = 0;
 bool returnedBits[NUM_BITS];
 bool oldReport[NUM_BITS];
 
-GAMEPAD_CLASS gamepad;
+GAMEPAD_CLASS gamepadN64;
 
 struct ControllerData {
 	bool buttonA;
@@ -169,19 +169,19 @@ void IRAM_ATTR sendCommand(byte command) {
 		// this is faster:
 #if defined(ARDUINO_ARCH_ESP32)
 
-#if DATA_PIN < 32
-		buffer[i] = (GPIO.in >> DATA_PIN) & 0x1;
-#elif DATA_PIN < 40
-		buffer[i] = (GPIO.in1.val >> (DATA_PIN - 32)) & 0x1;
+#if DATA_PIN_64 < 32
+		buffer[i] = (GPIO.in >> DATA_PIN_64) & 0x1;
+#elif DATA_PIN_64 < 40
+		buffer[i] = (GPIO.in1.val >> (DATA_PIN_64 - 32)) & 0x1;
 #else
 
-#error unsupported DATA_PIN must be <40
+#error unsupported DATA_PIN_64 must be <40
 
 #endif
 
 #else
 		// this is portable:
-		buffer[i] = digitalRead(DATA_PIN);
+		buffer[i] = digitalRead(DATA_PIN_64);
 #endif	// not defined(ARDUINO_ARCH_ESP32)
 	}
 
@@ -341,14 +341,18 @@ void populateControllerStruct(ControllerData *data) {
 
 ControllerData controller;
 
+#ifdef UNIVERSAL_MODE
+void setup_n64() {
+#else
 void setup() {
+#endif
 	setupBrLed();
 #ifdef DEBUG
 	Serial.begin(115200);
 	delay(5000);
 #endif
 
-	gamepad.begin();
+	gamepadN64.begin();
 
 	// setup io pins
 	//setupIO();
@@ -375,7 +379,11 @@ void setup() {
 #endif
 }
 
+#ifdef UNIVERSAL_MODE
+void loop_n64() {
+#else
 void loop() {
+#endif
 	// polling must not occur faster than every 20 ms
 	delay(14);
 
@@ -393,34 +401,34 @@ void loop() {
 	populateControllerStruct(&controller);
 
 	uint8_t c = 0;	// for now just do 1 pad
-	gamepad.buttons(c, 0);
+	gamepadN64.buttons(c, 0);
 	if (controller.buttonStart) {
 		if (controller.DPadDown) {
 			// then only send menu, nothing else
-			gamepad.press(c, BUTTON_MENU);
-			gamepad.setHatSync(c, DPAD_CENTER);
+			gamepadN64.press(c, BUTTON_MENU);
+			gamepadN64.setHatSync(c, DPAD_CENTER);
 			return;
 		}
-		gamepad.press(c, BUTTON_START);
+		gamepadN64.press(c, BUTTON_START);
 	}
 	if (controller.buttonA) {
-		gamepad.press(c, BUTTON_A);
+		gamepadN64.press(c, BUTTON_A);
 	}
 	if (controller.buttonB) {
-		gamepad.press(c, BUTTON_B);
+		gamepadN64.press(c, BUTTON_B);
 	}
 	if (controller.buttonZ) {
-		gamepad.press(c, BUTTON_TR);
+		gamepadN64.press(c, BUTTON_TR);
 	}
 	if (controller.buttonL) {
-		gamepad.press(c, BUTTON_L);
+		gamepadN64.press(c, BUTTON_L);
 	}
 	if (controller.buttonR) {
-		gamepad.press(c, BUTTON_R);
+		gamepadN64.press(c, BUTTON_R);
 	}
 	auto hat = calculateDpadDirection(controller.DPadUp, controller.DPadDown, controller.DPadLeft, controller.DPadRight);
 	auto cHat = dpadToAxis(calculateDpadDirection(controller.CUp, controller.CDown, controller.CLeft, controller.CRight));
-	gamepad.setAxis(c, translateAxis(controller.xAxis), -translateAxis(controller.yAxis), cHat.x, cHat.y, 0, 0, hat);
+	gamepadN64.setAxis(c, translateAxis(controller.xAxis), -translateAxis(controller.yAxis), cHat.x, cHat.y, 0, 0, hat);
 
 #ifdef DEBUG
 	/*

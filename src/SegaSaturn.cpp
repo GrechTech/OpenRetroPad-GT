@@ -27,15 +27,19 @@ NOTE: The receiver of the Retro Bit 2.4GHz controller needs to be plugged
 ------------------------------------------------------------------------- */
 #include "Arduino.h"
 
+#if defined(ARDUINO_ARCH_ESP32)
+#define digitalWriteFast digitalWrite
+#define digitalReadFast digitalRead
+#else
 #include <digitalWriteFast.h>
-//#define digitalWriteFast digitalWrite
-//#define digitalReadFast digitalRead
+#endif
 
 #ifndef GAMEPAD_COUNT
 #define GAMEPAD_COUNT 2
 #endif
 
 #include "gamepad/Gamepad.h"
+#include "util.cpp"
 
 // How many microseconds to wait after setting select lines? (2µs is enough according to the Saturn developer's manual)
 // 20µs is a "safe" value that seems to work for original Saturn controllers and Retrobit wired controllers
@@ -45,32 +49,31 @@ NOTE: The receiver of the Retro Bit 2.4GHz controller needs to be plugged
 //#define RETROBIT_WL
 
 #include "pins.h"
-#include "util.cpp"
 
 // pins
-#define P1_2 OR_PIN_2
-#define P1_3 OR_PIN_3
-#define P1_6 OR_PIN_4
-#define P1_7 OR_PIN_1
-#define P1_8 OR_PIN_11
+#define SAT_P1_2 OR_PIN_2
+#define SAT_P1_3 OR_PIN_3
+#define SAT_P1_6 OR_PIN_4
+#define SAT_P1_7 OR_PIN_1
+#define SAT_P1_8 OR_PIN_11
 
 #define PX_4 OR_PIN_6
 #define PX_5 OR_PIN_5
 
 #if GAMEPAD_COUNT == 2
 
-#define P2_2 OR_PIN_20
-#define P2_3 OR_PIN_21
-#define P2_6 OR_PIN_10
-#define P2_7 OR_PIN_18
-#define P2_8 OR_PIN_19
+#define SAT_P2_2 OR_PIN_20
+#define SAT_P2_3 OR_PIN_21
+#define SAT_P2_6 OR_PIN_10
+#define SAT_P2_7 OR_PIN_18
+#define SAT_P2_8 OR_PIN_19
 
 #endif
 
 #ifdef BLUERETRO_MAPPING
-#undef P1_6
+#undef SAT_P1_6
 #undef PX_4
-#define P1_6 ALT_PIN_1
+#define SAT_P1_6 ALT_PIN_1
 #define PX_4 ALT_PIN_2
 #endif
 
@@ -85,36 +88,36 @@ void read1() {
 	digitalWriteFast(PX_4, LOW);
 	digitalWriteFast(PX_5, LOW);
 	delayMicroseconds(SELECT_PAUSE);
-	if (!digitalReadFast(P1_3)) {
+	if (!digitalReadFast(SAT_P1_3)) {
 		// Z
 		currentGamepad.press(0, BUTTON_R);
 	}
-	if (!digitalReadFast(P1_2)) {
+	if (!digitalReadFast(SAT_P1_2)) {
 		// Y
 		currentGamepad.press(0, BUTTON_X);
 	}
-	if (!digitalReadFast(P1_8)) {
+	if (!digitalReadFast(SAT_P1_8)) {
 		// X
 		currentGamepad.press(0, BUTTON_L);
 	}
-	if (!digitalReadFast(P1_7)) {
+	if (!digitalReadFast(SAT_P1_7)) {
 		// R
 		currentGamepad.press(0, BUTTON_R2);
 	}
 #if GAMEPAD_COUNT == 2
-	if (!digitalReadFast(P2_3)) {
+	if (!digitalReadFast(SAT_P2_3)) {
 		// Z
 		currentGamepad.press(1, BUTTON_R);
 	}
-	if (!digitalReadFast(P2_2)) {
+	if (!digitalReadFast(SAT_P2_2)) {
 		// Y
 		currentGamepad.press(1, BUTTON_X);
 	}
-	if (!digitalReadFast(P2_8)) {
+	if (!digitalReadFast(SAT_P2_8)) {
 		// X
 		currentGamepad.press(1, BUTTON_L);
 	}
-	if (!digitalReadFast(P2_7)) {
+	if (!digitalReadFast(SAT_P2_7)) {
 		// R
 		currentGamepad.press(1, BUTTON_R2);
 	}
@@ -127,36 +130,36 @@ void read2() {
 	digitalWriteFast(PX_4, HIGH);
 	digitalWriteFast(PX_5, LOW);
 	delayMicroseconds(SELECT_PAUSE);
-	if (!digitalReadFast(P1_3)) {
+	if (!digitalReadFast(SAT_P1_3)) {
 		// B
 		currentGamepad.press(0, BUTTON_B);
 	}
-	if (!digitalReadFast(P1_2)) {
+	if (!digitalReadFast(SAT_P1_2)) {
 		// C
 		currentGamepad.press(0, BUTTON_A);
 	}
-	if (!digitalReadFast(P1_8)) {
+	if (!digitalReadFast(SAT_P1_8)) {
 		// A
 		currentGamepad.press(0, BUTTON_Y);
 	}
-	if (!digitalReadFast(P1_7)) {
+	if (!digitalReadFast(SAT_P1_7)) {
 		// ST
 		currentGamepad.press(0, BUTTON_START);
 	}
 #if GAMEPAD_COUNT == 2
-	if (!digitalReadFast(P2_3)) {
+	if (!digitalReadFast(SAT_P2_3)) {
 		// B
 		currentGamepad.press(1, BUTTON_B);
 	}
-	if (!digitalReadFast(P2_2)) {
+	if (!digitalReadFast(SAT_P2_2)) {
 		// C
 		currentGamepad.press(1, BUTTON_A);
 	}
-	if (!digitalReadFast(P2_8)) {
+	if (!digitalReadFast(SAT_P2_8)) {
 		// A
 		currentGamepad.press(1, BUTTON_Y);
 	}
-	if (!digitalReadFast(P2_7)) {
+	if (!digitalReadFast(SAT_P2_7)) {
 		// ST
 		currentGamepad.press(1, BUTTON_START);
 	}
@@ -169,36 +172,36 @@ void read3() {
 	digitalWriteFast(PX_4, LOW);
 	digitalWriteFast(PX_5, HIGH);
 	delayMicroseconds(SELECT_PAUSE);
-	if (!digitalReadFast(P1_3)) {
+	if (!digitalReadFast(SAT_P1_3)) {
 		// UP
 		currentGamepad.pressDpad(0, DPAD_BIT_UP);
 	}
-	if (!digitalReadFast(P1_2)) {
+	if (!digitalReadFast(SAT_P1_2)) {
 		// DOWN
 		currentGamepad.pressDpad(0, DPAD_BIT_DOWN);
 	}
-	if (!digitalReadFast(P1_8)) {
+	if (!digitalReadFast(SAT_P1_8)) {
 		// LEFT
 		currentGamepad.pressDpad(0, DPAD_BIT_LEFT);
 	}
-	if (!digitalReadFast(P1_7)) {
+	if (!digitalReadFast(SAT_P1_7)) {
 		// RIGHT
 		currentGamepad.pressDpad(0, DPAD_BIT_RIGHT);
 	}
 #if GAMEPAD_COUNT == 2
-	if (!digitalReadFast(P2_3)) {
+	if (!digitalReadFast(SAT_P2_3)) {
 		// UP
 		currentGamepad.pressDpad(1, DPAD_BIT_UP);
 	}
-	if (!digitalReadFast(P2_2)) {
+	if (!digitalReadFast(SAT_P2_2)) {
 		// DOWN
 		currentGamepad.pressDpad(1, DPAD_BIT_DOWN);
 	}
-	if (!digitalReadFast(P2_8)) {
+	if (!digitalReadFast(SAT_P2_8)) {
 		// LEFT
 		currentGamepad.pressDpad(1, DPAD_BIT_LEFT);
 	}
-	if (!digitalReadFast(P2_7)) {
+	if (!digitalReadFast(SAT_P2_7)) {
 		// RIGHT
 		currentGamepad.pressDpad(1, DPAD_BIT_RIGHT);
 	}
@@ -211,50 +214,54 @@ void read4() {
 	digitalWriteFast(PX_4, HIGH);
 	digitalWriteFast(PX_5, HIGH);
 	delayMicroseconds(SELECT_PAUSE);
-	if (!digitalReadFast(P1_7)) {
+	if (!digitalReadFast(SAT_P1_7)) {
 		// L
 		currentGamepad.press(0, BUTTON_L2);
 	}
 #if GAMEPAD_COUNT == 2
-	if (!digitalReadFast(P2_7)) {
+	if (!digitalReadFast(SAT_P2_7)) {
 		// L
 		currentGamepad.press(1, BUTTON_L2);
 	}
 #endif
 }
 
+#ifdef UNIVERSAL_MODE
+void setup_sat() {
+#else
 void setup() {
+#endif
 	setupBrLed();
 	gamepad.begin();
 
 	// Set P1 data pins  as inputs and enable pull-up resistors
-	pinMode(P1_3, INPUT_PULLUP);
-	pinMode(P1_2, INPUT_PULLUP);
-	pinMode(P1_7, INPUT_PULLUP);
-	pinMode(P1_8, INPUT_PULLUP);
-	digitalWrite(P1_3, HIGH);
-	digitalWrite(P1_2, HIGH);
-	digitalWrite(P1_7, HIGH);
-	digitalWrite(P1_8, HIGH);
+	pinMode(SAT_P1_3, INPUT_PULLUP);
+	pinMode(SAT_P1_2, INPUT_PULLUP);
+	pinMode(SAT_P1_7, INPUT_PULLUP);
+	pinMode(SAT_P1_8, INPUT_PULLUP);
+	digitalWrite(SAT_P1_3, HIGH);
+	digitalWrite(SAT_P1_2, HIGH);
+	digitalWrite(SAT_P1_7, HIGH);
+	digitalWrite(SAT_P1_8, HIGH);
 
 	// Set P1 TL as input and enable pull-up resistor
-	pinMode(P1_6, INPUT_PULLUP);
-	digitalWrite(P1_6, HIGH);
+	pinMode(SAT_P1_6, INPUT_PULLUP);
+	digitalWrite(SAT_P1_6, HIGH);
 
 #if GAMEPAD_COUNT == 2
 	// Set P2 data pins as inputs and enable pull-up resistors
-	pinMode(P2_3, INPUT_PULLUP);
-	pinMode(P2_2, INPUT_PULLUP);
-	pinMode(P2_7, INPUT_PULLUP);
-	pinMode(P2_8, INPUT_PULLUP);
-	digitalWrite(P2_3, HIGH);
-	digitalWrite(P2_2, HIGH);
-	digitalWrite(P2_7, HIGH);
-	digitalWrite(P2_8, HIGH);
+	pinMode(SAT_P2_3, INPUT_PULLUP);
+	pinMode(SAT_P2_2, INPUT_PULLUP);
+	pinMode(SAT_P2_7, INPUT_PULLUP);
+	pinMode(SAT_P2_8, INPUT_PULLUP);
+	digitalWrite(SAT_P2_3, HIGH);
+	digitalWrite(SAT_P2_2, HIGH);
+	digitalWrite(SAT_P2_7, HIGH);
+	digitalWrite(SAT_P2_8, HIGH);
 
 	// Set P2 TL as input and enable pull-up resistor
-	pinMode(P2_6, INPUT_PULLUP);
-	digitalWrite(P2_6, HIGH);
+	pinMode(SAT_P2_6, INPUT_PULLUP);
+	digitalWrite(SAT_P2_6, HIGH);
 #endif
 
 	// Set P1+P2 select pins as outputs and set them HIGH
@@ -267,7 +274,11 @@ void setup() {
 	delay(100);
 }
 
+#ifdef UNIVERSAL_MODE
+void loop_sat() {
+#else
 void loop() {
+#endif
 	// Read all button and axes states
 	read3();
 	read2();

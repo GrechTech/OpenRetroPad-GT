@@ -48,7 +48,7 @@ PIN # USAGE (colors from my extension cable, check your own)
 #endif
 
 // not counting dpad
-#define BUTTON_COUNT 12
+#define BUTTON_COUNT_PS 12
 
 #define JOYSTICK_STATE_SIZE 6
 
@@ -61,7 +61,7 @@ PIN # USAGE (colors from my extension cable, check your own)
 #include "gamepad/Gamepad.h"
 #include "util.cpp"
 
-GAMEPAD_CLASS gamepad;
+GAMEPAD_CLASS gamepadPs;
 
 enum
 {
@@ -92,7 +92,7 @@ enum
 };
 
 // pressing one of these buttons on the controller... (read below)
-static const uint16_t translateFromButton[BUTTON_COUNT] = {
+static const uint16_t translateFromButton[BUTTON_COUNT_PS] = {
 	PS_BTN_O,
 	PS_BTN_X,
 	PS_BTN_SQUARE,
@@ -108,7 +108,7 @@ static const uint16_t translateFromButton[BUTTON_COUNT] = {
 };
 
 // ... translates to one of these buttons over HID
-static const uint32_t translateToHid[BUTTON_COUNT] = {
+static const uint32_t translateToHidPs[BUTTON_COUNT_PS] = {
 	BUTTON_A,
 	BUTTON_B,
 	BUTTON_Y,
@@ -254,22 +254,22 @@ class Joystick_ {
 		Serial.flush();
 #endif
 
-		//gamepad.buttons(i, *(uint16_t*)(&data[0]));
-		//gamepad.setHatSync(i, DPAD_CENTERED);
-		gamepad.buttons(c, 0);
+		//gamepadPs.buttons(i, *(uint16_t*)(&data[0]));
+		//gamepadPs.setHatSync(i, DPAD_CENTERED);
+		gamepadPs.buttons(c, 0);
 		// if start and select are held at the same time, send menu and only menu
 		if (down(PS_BTN_START) && down(PS_BTN_SELECT)) {
-			gamepad.press(c, BUTTON_MENU);
+			gamepadPs.press(c, BUTTON_MENU);
 		} else {
 			// actually send buttons held
-			for (uint8_t btn = 0; btn < BUTTON_COUNT; btn++) {
+			for (uint8_t btn = 0; btn < BUTTON_COUNT_PS; btn++) {
 				if (down(translateFromButton[btn])) {
-					gamepad.press(c, translateToHid[btn]);
+					gamepadPs.press(c, translateToHidPs[btn]);
 				}
 			}
 		}
 
-		gamepad.setAxis(c, translateAxis(data[4]), translateAxis(data[5]), translateAxis(data[2]), translateAxis(data[3]), 0, 0, getHat());
+		gamepadPs.setAxis(c, translateAxis(data[4]), translateAxis(data[5]), translateAxis(data[2]), translateAxis(data[3]), 0, 0, getHat());
 	}
 };
 
@@ -300,12 +300,16 @@ uint8_t shift(uint8_t _dataOut)	 // Does the actual shifting, both in and out si
 	return _dataIn;
 }
 
+#ifdef UNIVERSAL_MODE
+void setup_psx() {
+#else
 void setup() {
+#endif
 	setupBrLed();
 #ifdef DEBUG
 	Serial.begin(115200);
 #endif
-	gamepad.begin();
+	gamepadPs.begin();
 
 	pinMode(DATA1, INPUT_PULLUP);
 	pinMode(CMD1, OUTPUT);
@@ -313,11 +317,15 @@ void setup() {
 	pinMode(CLK1, OUTPUT);
 }
 
+#ifdef UNIVERSAL_MODE
+void loop_psx() {
+#else
 void loop() {
+#endif
 	// http://problemkaputt.de/psx-spx.htm#controllerandmemorycardsignals
 	uint8_t head, padding, multitap;
 
-	// first: read gamepad normally
+	// first: read gamepadPs normally
 	digitalWrite(ATT1, LOW);
 	//digitalWrite(ATT2, LOW);
 	head = shift(0x01);

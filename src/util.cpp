@@ -1,3 +1,5 @@
+#ifndef UTIL_H
+#define UTIL_H
 
 uint8_t calculateDpadDirection(const bool up, const bool down, const bool left, const bool right) {
 	if (down) {
@@ -104,4 +106,6 @@ void setupBrLed()
 }
 #else
 void setupBrLed(){}
+#endif
+
 #endif
