@@ -16,7 +16,7 @@ PIN # USAGE
 
 #include "pins.h"
 
-#define DATA_PIN_64 OR_PIN_2
+const int DATA_PIN_64 = OR_PIN_2;
 
 //#define PRINT_Y_AXIS_VALUES 1
 //#define PRINT_X_AXIS_VALUES 1
@@ -28,9 +28,9 @@ PIN # USAGE
 #define GAMEPAD_COUNT 1
 #endif
 
-#define AXIS_CENTER_IN 0
-#define AXIS_MAX_IN 70
-#define AXIS_MIN_IN -70
+const int axis_center_in_n64 = 0;
+const int axis_max_in_n64 = 70;
+const int axis_min_in_n64 = -70;
 
 #include "gamepad/Gamepad.h"
 #include "util.cpp"
@@ -38,10 +38,10 @@ PIN # USAGE
 #define LINE_WRITE_HIGH pinMode(DATA_PIN_64, INPUT_PULLUP)
 #define LINE_WRITE_LOW pinMode(DATA_PIN_64, OUTPUT)
 
-#define DATA_SIZE 2048	// number of sample points to poll
-#define CALIBRATE_PASSES 5
+const int DATA_SIZE = 2048;	// number of sample points to poll
+const int CALIBRATE_PASSES = 5;
 
-#define NUM_BITS 32
+const int NUM_BITS = 32;
 
 // buffer to hold data being read from controller
 bool buffer[DATA_SIZE];
@@ -325,16 +325,16 @@ void populateControllerStruct(ControllerData *data) {
 	}
 
 	// keep x axis below maxIncline
-	if (data->xAxis > AXIS_MAX_IN)
-		data->xAxis = AXIS_MAX_IN;
-	if (data->xAxis < AXIS_MIN_IN)
-		data->xAxis = AXIS_MIN_IN;
+	if (data->xAxis > axis_max_in_n64)
+		data->xAxis = axis_max_in_n64;
+	if (data->xAxis < axis_min_in_n64)
+		data->xAxis = axis_min_in_n64;
 
 	// keep y axis below maxIncline
-	if (data->yAxis > AXIS_MAX_IN)
-		data->yAxis = AXIS_MAX_IN;
-	if (data->yAxis < AXIS_MIN_IN)
-		data->yAxis = AXIS_MIN_IN;
+	if (data->yAxis > axis_max_in_n64)
+		data->yAxis = axis_max_in_n64;
+	if (data->yAxis < axis_min_in_n64)
+		data->yAxis = axis_min_in_n64;
 
 	//Serial.printf("xaxis: %-3i yaxis: %-3i \n",data->xAxis,data->yAxis);
 }
@@ -428,7 +428,7 @@ void loop() {
 	}
 	auto hat = calculateDpadDirection(controller.DPadUp, controller.DPadDown, controller.DPadLeft, controller.DPadRight);
 	auto cHat = dpadToAxis(calculateDpadDirection(controller.CUp, controller.CDown, controller.CLeft, controller.CRight));
-	gamepadN64.setAxis(c, translateAxis(controller.xAxis), -translateAxis(controller.yAxis), cHat.x, cHat.y, 0, 0, hat);
+	gamepadN64.setAxis(c, translateAxis(controller.xAxis, axis_center_in_n64, axis_min_in_n64, axis_max_in_n64), -translateAxis(controller.yAxis, axis_center_in_n64, axis_min_in_n64, axis_max_in_n64), cHat.x, cHat.y, 0, 0, hat);
 
 #ifdef DEBUG
 	/*
@@ -458,11 +458,11 @@ void loop() {
 	Serial.print(" Y: ");
 	Serial.print(controller.yAxis);
 	Serial.print(" YT: ");
-	Serial.print(-translateAxis(controller.yAxis));
+	Serial.print(-translateAxis(controller.yAxis, axis_center_in_n64, axis_min_in_n64, axis_max_in_n64));
 	Serial.print(" X: ");
 	Serial.print(controller.xAxis);
 	Serial.print(" XT: ");
-	Serial.print(translateAxis(controller.xAxis));
+	Serial.print(translateAxis(controller.xAxis, axis_center_in_n64, axis_min_in_n64, axis_max_in_n64));
 	Serial.println();
 #endif
 }

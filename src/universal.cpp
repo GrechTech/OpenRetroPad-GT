@@ -1,5 +1,9 @@
 #include "Arduino.h"
 
+#ifndef DEBUG
+#define GAMEPAD_COUNT 1
+#endif
+
 #include "pins.h"
 
 #include "SnesNes.cpp"
@@ -26,9 +30,11 @@ const float tolerance = 0.22; // Max resistor tolerance of 20% with safety margi
 
 void setup_sdc(){} // Missing
 void loop_sdc(){} // Missing
+void setup_ngc(){} // Missing
+void loop_ngc(){} // Missing
 
-void (*setups[])(void) = {setup_psx, setup_n64, setup_nes, setup_gen, setup_n64, setup_sdc, setup_sat, setup_wii}; 
-void (*loops[])(void) = {loop_psx, loop_n64, loop_nes, loop_gen, loop_n64, loop_sdc, loop_sat, loop_wii}; 
+void (*setups[])(void) = {setup_psx, setup_n64, setup_nes, setup_gen, setup_ngc, setup_sdc, setup_sat, setup_wii}; 
+void (*loops[])(void) = {loop_psx, loop_n64, loop_nes, loop_gen, loop_ngc, loop_sdc, loop_sat, loop_wii}; 
 
 void (*setup_run)(void); 
 void (*loop_run)(void); 
@@ -74,28 +80,47 @@ void setup()
 {
 #ifdef DEBUG
 	Serial.begin(115200);
+    Serial.println("Begin universal setup");
 #endif
-    uint16_t raw = analogRead(OR_PIN_9);
-    float buffer = raw * Vin;
-    float Vout = (buffer) / steps;
-    buffer = (Vin / Vout) - 1;
-    float R2 = R1 / buffer;
-#ifdef DEBUG
-    Serial.print("raw: ");
-    Serial.print(raw);
-    Serial.print(" Vout: ");
-    Serial.print(Vout);
-    Serial.print(" R2: ");
-    Serial.println(R2);
-#endif
+    uint16_t raw = 0;
+    float buffer, Vout, R2;
+
     while (System == S_UNDEFINED)
     {
+        delay(100);
+        raw = analogRead(OR_PIN_9);
+        buffer = raw * Vin;
+        Vout = (buffer) / steps;
+        buffer = (Vin / Vout) - 1;
+        R2 = R1 / buffer;
         System = find_system(R2);
-        setup_run = setups[System];
-        loop_run = loops[System];
+
+#ifdef DEBUG
+        Serial.print("raw: ");
+        Serial.print(raw);
+        Serial.print(" Vout: ");
+        Serial.print(Vout);
+        Serial.print(" R2: ");
+        Serial.println(R2);
+
+        if (System == S_UNDEFINED)
+        {    
+            delay(3000);
+            Serial.println("Searching...");
+        }
+#endif
     }
 
+    setup_run = setups[System];
+    loop_run = loops[System];
+#ifdef DEBUG
+    Serial.print("Running setup for system: ");
+    Serial.println(System);
+#endif
     setup_run();
+#ifdef DEBUG
+    Serial.println("Setup done, run loop");
+#endif
 }
 
 void loop() 

@@ -20,8 +20,8 @@ PIN # USAGE
 #define GAMEPAD_COUNT 2
 #endif
 
-#define BUTTON_COUNT_GEN 9
-#define PIN_COUNT 6
+const int BUTTON_COUNT_GEN = 9;
+const int PIN_COUNT = 6;
 
 #include "gamepad/Gamepad.h"
 #include "util.cpp"
@@ -46,23 +46,18 @@ enum
 
 #include "pins.h"
 
-#define GEN_P1_5 OR_PIN_4
-#define GEN_P1_6 OR_PIN_6
-#define GEN_P2_5 OR_PIN_14
-#define GEN_P2_6 OR_PIN_15
-#define GEN_P2_7 OR_PIN_7
-
 #ifdef BLUERETRO_MAPPING
-#undef GEN_P1_5
-#undef GEN_P1_6
-#undef GEN_P2_5
-#undef GEN_P2_6
-#undef GEN_P2_7
-#define GEN_P1_5 OR_PIN_10
-#define GEN_P1_6 ALT_PIN_1
-#define GEN_P2_5 ALT_PIN_3
-#define GEN_P2_6 ALT_PIN_4
-#define GEN_P2_7 ALT_PIN_2
+const int GEN_P1_5 = OR_PIN_10;
+const int GEN_P1_6 = ALT_PIN_1;
+const int GEN_P2_5 = ALT_PIN_3;
+const int GEN_P2_6 = ALT_PIN_4;
+const int GEN_P2_7 = ALT_PIN_2;
+#else
+const int GEN_P1_5 = OR_PIN_4;
+const int GEN_P1_6 = OR_PIN_6;
+const int GEN_P2_5 = OR_PIN_14;
+const int GEN_P2_6 = OR_PIN_15;
+const int GEN_P2_7 = OR_PIN_7;
 #endif
 
 static const int DATA_PIN_SELECT[GAMEPAD_COUNT] = {

@@ -68,34 +68,32 @@ inline long translate(long x, long in_min, long in_max, long out_min, long out_m
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-inline int16_t translateAxis(long v) {
+inline int16_t translateAxis(long v, long int_centr, long in_min, long in_max) {
 	// pin to max/min
-	if (v <= AXIS_MIN_IN) {
+	if (v <= in_min) {
 		return AXIS_MIN;
-	} else if (v >= AXIS_MAX_IN) {
+	} else if (v >= in_max) {
 		return AXIS_MAX;
 	}
 	// don't map at all if translation isn't required...
-#if AXIS_CENTER_IN == AXIS_CENTER && AXIS_MIN_IN == AXIS_MIN && AXIS_MAX_IN == AXIS_MAX
-	return v;  // noop
-#else
-	return v == AXIS_CENTER_IN ? AXIS_CENTER : translate(v, AXIS_MIN_IN, AXIS_MAX_IN, AXIS_MIN, AXIS_MAX);
-#endif
+	if (int_centr == AXIS_CENTER && in_min == AXIS_MIN && in_max == AXIS_MAX)
+		return v;  // noop
+	else
+		return v == int_centr ? AXIS_CENTER : translate(v, in_min, in_max, AXIS_MIN, AXIS_MAX);
 }
 
-inline uint8_t translateTrigger(long v) {
+inline uint8_t translateTrigger(long v, long in_min, long in_max) {
 	// pin to max/min
-	if (v <= TRIGGER_MIN_IN) {
+	if (v <= in_min) {
 		return TRIGGER_MIN;
-	} else if (v >= TRIGGER_MAX_IN) {
+	} else if (v >= in_max) {
 		return TRIGGER_MAX;
 	}
 	// don't map at all if translation isn't required...
-#if TRIGGER_MIN_IN == TRIGGER_MIN && TRIGGER_MAX_IN == TRIGGER_MAX
-	return v;  // noop
-#else
-	return translate(v, TRIGGER_MIN_IN, TRIGGER_MAX_IN, TRIGGER_MIN, TRIGGER_MAX);
-#endif
+	if (in_min == TRIGGER_MIN && in_max == TRIGGER_MAX)
+		return v;  // noop
+	else
+		return translate(v, in_min, in_max, TRIGGER_MIN, TRIGGER_MAX);
 }
 
 #ifdef BLUERETRO_MAPPING

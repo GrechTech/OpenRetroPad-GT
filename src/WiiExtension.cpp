@@ -23,14 +23,16 @@ Wii Nunchuck/Wii Classic/SNES+NES Classic:
 #include <Arduino.h>
 
 // we only support 1 pad here
+#ifndef DEBUG
 #define GAMEPAD_COUNT 1
+#endif
 
-#define AXIS_CENTER_IN 126
-#define AXIS_MAX_IN 230
-#define AXIS_MIN_IN 15
+const int axis_center_in_wii = 126;
+const int axis_max_in_wii = 230;
+const int axis_min_in_wii = 15;
 
-#define TRIGGER_MAX_IN 255
-#define TRIGGER_MIN_IN 40
+const int trigger_max_in_wii = 255;
+const int trigger_min_in_wii = 40;
 
 #include <NintendoExtensionCtrl.h>
 
@@ -66,7 +68,8 @@ void nunchuckChanged() {
 		gamepadWii.press(c, BUTTON_B);
 	}
 	// todo: anything with roll/pitch/accel ?
-	gamepadWii.setAxis(c, translateAxis(nchuk.joyX()), -translateAxis(nchuk.joyY()), 0, 0, 0, 0, DPAD_CENTER);
+	gamepadWii.setAxis(c, translateAxis(nchuk.joyX(), axis_center_in_wii, axis_min_in_wii, axis_max_in_wii), 
+						-translateAxis(nchuk.joyY(), axis_center_in_wii, axis_min_in_wii, axis_max_in_wii), 0, 0, 0, 0, DPAD_CENTER);
 }
 
 void classicChanged() {
@@ -107,12 +110,12 @@ void classicChanged() {
 	}
 	auto hat = calculateDpadDirection(classic.dpadUp(), classic.dpadDown(), classic.dpadLeft(), classic.dpadRight());
 	gamepadWii.setAxis(c,
-					translateAxis(classic.leftJoyX()),
-					-translateAxis(classic.leftJoyY()),
-					translateAxis(classic.rightJoyX()),
-					-translateAxis(classic.rightJoyY()),
-					translateTrigger(classic.triggerL()),
-					translateTrigger(classic.triggerR()),
+					translateAxis(classic.leftJoyX(), axis_center_in_wii, axis_min_in_wii, axis_max_in_wii),
+					-translateAxis(classic.leftJoyY(), axis_center_in_wii, axis_min_in_wii, axis_max_in_wii),
+					translateAxis(classic.rightJoyX(), axis_center_in_wii, axis_min_in_wii, axis_max_in_wii),
+					-translateAxis(classic.rightJoyY(), axis_center_in_wii, axis_min_in_wii, axis_max_in_wii),
+					translateTrigger(classic.triggerL(), trigger_min_in_wii, trigger_max_in_wii),
+					translateTrigger(classic.triggerR(), trigger_min_in_wii, trigger_max_in_wii),
 					hat);
 }
 

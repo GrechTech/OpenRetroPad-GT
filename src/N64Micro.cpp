@@ -44,10 +44,10 @@ GAMECUBE:
 
 #include "pins.h"
 
-#define DATA_PIN_64M OR_PIN_2
+const int DATA_PIN_64M = OR_PIN_2;
 
 // how often to poll, 100? 14? polling must not occur faster than every 20 ms
-#define POLL_DELAY 14
+const int POLL_DELAY = 14;
 
 #include "Arduino.h"
 
@@ -59,26 +59,27 @@ GAMECUBE:
 
 /*
 // these are my average values from my apparantly very bad wavebird controller
-#define AXIS_CENTER_IN 135
-#define AXIS_MAX_IN 230
-#define AXIS_MIN_IN 30
+const int axis_center_in_m64 = 135;
+const int axis_max_in_m64 = 230;
+const int axis_min_in_m64 = 30;
 
-#define TRIGGER_MAX_IN 236
-#define TRIGGER_MIN_IN 36
+const int trigger_max_in_m64 = 236;
+const int trigger_min_in_m64 = 36;
 */
 // these look like much more proper values from a pelican gc controller
-#define AXIS_CENTER_IN 128
-#define AXIS_MAX_IN 255
-#define AXIS_MIN_IN 0
+const int axis_center_in_m64 = 128;
+const int axis_max_in_m64 = 255;
+const int axis_min_in_m64 = 0;
 
-#define TRIGGER_MAX_IN 255
-#define TRIGGER_MIN_IN 0
+const int trigger_max_in_m64 = 255;
+const int trigger_min_in_m64 = 0;
 
 #else  // N64
-#define AXIS_CENTER_IN 0
-#define AXIS_MAX_IN 80
-#define AXIS_MIN_IN -80
+const int axis_center_in_m64 = 0;
+const int axis_max_in_m64 = 80;
+const int axis_min_in_m64 = -80;
 #endif
+
 
 #include "gamepad/Gamepad.h"
 #include "util.cpp"

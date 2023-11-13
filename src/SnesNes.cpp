@@ -4,7 +4,7 @@
 #ifndef GAMEPAD_COUNT
 #define GAMEPAD_COUNT 2
 #endif
-#define BUTTON_COUNT_NES 12	 // SNES has 12, NES only has 8
+const int BUTTON_COUNT_NES = 12;	 // SNES has 12, NES only has 8
 
 #include "pins.h"
 
@@ -12,17 +12,17 @@
 static const int LATCH_PIN = OR_PIN_1;	// brown
 static const int CLOCK_PIN = OR_PIN_2;	// white
 
-#define DATA_P1 OR_PIN_3
-#define DATA_P2 OR_PIN_4
-#define DATA_P3 OR_PIN_5
-#define DATA_P4 OR_PIN_6
+const int DATA_P1 = OR_PIN_3;
+const int DATA_P3 = OR_PIN_5;
 
 #ifdef BLUERETRO_MAPPING
-#undef DATA_P2
-#undef DATA_P4
-#define DATA_P2 OR_PIN_10
-#define DATA_P4 OR_PIN_11
+const int DATA_P2 = OR_PIN_10;
+const int DATA_P4 = OR_PIN_11;
+#else
+const int DATA_P2 = OR_PIN_4;
+const int DATA_P4 = OR_PIN_6;
 #endif
+
 
 //individual data pin for each controller
 static const int DATA_PINS_NES[GAMEPAD_COUNT] = {
