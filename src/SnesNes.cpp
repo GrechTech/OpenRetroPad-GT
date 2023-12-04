@@ -7,7 +7,6 @@
 #define BUTTON_COUNT 12	 // SNES has 12, NES only has 8
 
 #include "pins.h"
-#include "util.cpp"
 
 //shared pins between all controllers
 static const int LATCH_PIN = OR_PIN_1;	// brown
@@ -43,6 +42,7 @@ static const int DATA_PIN[GAMEPAD_COUNT] = {
 //#define DEBUG
 
 #include "gamepad/Gamepad.h"
+#include "util.cpp"
 
 static const uint8_t translateToNES[12] = {1, 8, 2, 3, 4, 5, 6, 7, 0, 8, 8, 8};
 
