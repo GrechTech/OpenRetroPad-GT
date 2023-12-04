@@ -29,11 +29,16 @@
 
 #elif GAMEPAD_OUTPUT == 3
 
-#ifndef CONFIG_BT_ENABLED
-#error BT output unsupported if CONFIG_BT_ENABLED is not set
-#endif	// not CONFIG_BT_ENABLED
-
-#include "ESP32-BLE-Gamepad/BleGamepad.h"
+#ifndef GAMEPAD_CLASS
+#define GAMEPAD_CLASS BleGamepad
+#endif
+#include "common.h"
+#include "BleGamepad.h"
+#define press(c, b) press(b)
+#define setHatSync(c, b) setHat(b)
+#define setAxis(c, x, y, rx, ry, l, r, h) setAxes(x, y, 0, rx, ry, 0, l, r)
+#define isPressedZ(c, b) isPressed(b)
+#define buttons(c, a) setBatteryLevel(c)
 
 #elif GAMEPAD_OUTPUT == 4
 

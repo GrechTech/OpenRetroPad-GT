@@ -10,7 +10,7 @@
 #include "N64Esp32.cpp"    
 #include "SegaGenesis.cpp"
 #include "Playstation.cpp"
-#include "SegaSaturn.cpp"
+//#include "SegaSaturn.cpp"
 #include "WiiExtension.cpp" 
 
 #if defined(ARDUINO_ARCH_ESP32)
@@ -28,6 +28,8 @@ const float steps = 1024.0;
 const float R1 = 1000; // 1K known resistor
 const float tolerance = 0.22; // Max resistor tolerance of 20% with safety margin
 
+void setup_sat(){} // Missing
+void loop_sat(){} // Missing
 void setup_sdc(){} // Missing
 void loop_sdc(){} // Missing
 void setup_ngc(){} // Missing
