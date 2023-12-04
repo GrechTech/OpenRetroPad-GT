@@ -43,6 +43,21 @@
 
 #include "Switch-USB-Gamepad/SwitchUsbGamepad.h"
 
+#elif GAMEPAD_OUTPUT == 6  // NimBLE
+
+#ifndef GAMEPAD_CLASS
+#define GAMEPAD_CLASS BleGamepad
+#endif
+
+
+#include "common.h"
+#include "BleGamepad.h"
+#define press(c, b) press(b)
+#define setHatSync(c, b) setHat(b)
+#define setAxis(c, x, y, rx, ry, l, r, h) setAxes(x, y, 0, rx, ry, 0, l, r)
+#define isPressedZ(c, b) isPressed(b)
+#define buttons(c, a) setBatteryLevel(c) // dummy
+
 #else
 
 #error Unsupported value for GAMEPAD_OUTPUT, must be 0-3
