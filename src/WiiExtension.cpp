@@ -25,13 +25,6 @@ Wii Nunchuck/Wii Classic/SNES+NES Classic:
 // we only support 1 pad here
 #define GAMEPAD_COUNT 1
 
-#define AXIS_CENTER_IN 126
-#define AXIS_MAX_IN 230
-#define AXIS_MIN_IN 15
-
-#define TRIGGER_MAX_IN 255
-#define TRIGGER_MIN_IN 40
-
 #include <NintendoExtensionCtrl.h>
 
 #include "gamepad/Gamepad.h"
@@ -147,6 +140,7 @@ boolean connectController() {
 
 void setup() {
 	setupBrLed();
+	setBounds(230, 15, 126, 255, 40);
 	gamepad.begin();
 	port.begin();  // init I2C
 

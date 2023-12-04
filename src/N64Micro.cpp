@@ -44,10 +44,10 @@ GAMECUBE:
 
 #include "pins.h"
 
-#define DATA_PIN OR_PIN_2
+const int DATA_PIN = OR_PIN_2;
 
 // how often to poll, 100? 14? polling must not occur faster than every 20 ms
-#define POLL_DELAY 14
+const int POLL_DELAY = 14;
 
 #include "Arduino.h"
 
@@ -65,7 +65,7 @@ GAMECUBE:
 
 #define TRIGGER_MAX_IN 236
 #define TRIGGER_MIN_IN 36
-*/
+
 // these look like much more proper values from a pelican gc controller
 #define AXIS_CENTER_IN 128
 #define AXIS_MAX_IN 255
@@ -73,12 +73,7 @@ GAMECUBE:
 
 #define TRIGGER_MAX_IN 255
 #define TRIGGER_MIN_IN 0
-
-#else  // N64
-#define AXIS_CENTER_IN 0
-#define AXIS_MAX_IN 80
-#define AXIS_MIN_IN -80
-#endif
+*/
 
 #include "gamepad/Gamepad.h"
 #include "util.cpp"
@@ -157,6 +152,11 @@ void print_report(ControllerReport &controller) {
 void setup() {
 	// n64 low because it *should* be 3.3V
 	digitalWrite(DATA_PIN, LOW);
+#ifdef GAMECUBE
+	setBounds(255, 0, 128, 255, 0);
+#else
+	setBounds(90, -80, 0);
+#endif
 #ifdef DEBUG
 	Serial.begin(115200);
 	if (controller.begin()) {

@@ -1,3 +1,17 @@
+int axis_max_in = 32767;
+int axis_min_in = -32767;
+int axis_center_in = 0;
+int trigger_max_in = 127;
+int trigger_min_in = -127;
+
+void setBounds(int _axis_max_in = 32767, int _axis_min_in = -32767, int _axis_center_in = 0, int _trigger_max_in = 127, int _trigger_min_in = -127)
+{
+	axis_max_in = _axis_max_in;
+	axis_min_in = _axis_max_in;
+	axis_center_in = _axis_max_in;
+	trigger_max_in = _axis_max_in;
+	trigger_min_in = _axis_max_in;
+}
 
 uint8_t calculateDpadDirection(const bool up, const bool down, const bool left, const bool right) {
 	if (down) {
@@ -68,31 +82,31 @@ inline long translate(long x, long in_min, long in_max, long out_min, long out_m
 
 inline int16_t translateAxis(long v) {
 	// pin to max/min
-	if (v <= AXIS_MIN_IN) {
+	if (v <= axis_min_in) {
 		return AXIS_MIN;
-	} else if (v >= AXIS_MAX_IN) {
+	} else if (v >= axis_max_in) {
 		return AXIS_MAX;
 	}
 	// don't map at all if translation isn't required...
-#if AXIS_CENTER_IN == AXIS_CENTER && AXIS_MIN_IN == AXIS_MIN && AXIS_MAX_IN == AXIS_MAX
+#if axis_center_in == AXIS_CENTER && axis_min_in == AXIS_MIN && axis_max_in == AXIS_MAX
 	return v;  // noop
 #else
-	return v == AXIS_CENTER_IN ? AXIS_CENTER : translate(v, AXIS_MIN_IN, AXIS_MAX_IN, AXIS_MIN, AXIS_MAX);
+	return v == axis_center_in ? AXIS_CENTER : translate(v, axis_min_in, axis_max_in, AXIS_MIN, AXIS_MAX);
 #endif
 }
 
 inline uint8_t translateTrigger(long v) {
 	// pin to max/min
-	if (v <= TRIGGER_MIN_IN) {
+	if (v <= trigger_min_in) {
 		return TRIGGER_MIN;
-	} else if (v >= TRIGGER_MAX_IN) {
+	} else if (v >= trigger_max_in) {
 		return TRIGGER_MAX;
 	}
 	// don't map at all if translation isn't required...
-#if TRIGGER_MIN_IN == TRIGGER_MIN && TRIGGER_MAX_IN == TRIGGER_MAX
+#if trigger_min_in == TRIGGER_MIN && trigger_max_in == TRIGGER_MAX
 	return v;  // noop
 #else
-	return translate(v, TRIGGER_MIN_IN, TRIGGER_MAX_IN, TRIGGER_MIN, TRIGGER_MAX);
+	return translate(v, trigger_min_in, trigger_max_in, TRIGGER_MIN, TRIGGER_MAX);
 #endif
 }
 

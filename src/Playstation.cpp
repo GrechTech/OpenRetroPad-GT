@@ -23,23 +23,23 @@ PIN # USAGE (colors from my extension cable, check your own)
 
 #include "pins.h"
 
-#define DATA1 OR_PIN_2
-#define CMD1 OR_PIN_3
-#define ATT1 OR_PIN_4
-#define CLK1 OR_PIN_5
+const int DATA1 = OR_PIN_2;
+const int CMD1 = OR_PIN_3;
+const int CLK1 = OR_PIN_5;
 
 #ifdef BLUERETRO_MAPPING
-#undef ATT1
-#define ATT1 OR_PIN_10
+const int ATT1 = OR_PIN_10;
+#else
+const int ATT1 = OR_PIN_4;
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32)
 
-#define CTRL_BYTE_DELAY 18
+const int CTRL_BYTE_DELAY = 18;
 
 #else
 
-#define CTRL_BYTE_DELAY 6
+const int CTRL_BYTE_DELAY = 6;
 
 #endif	// esp32 vs micro delay
 
@@ -48,13 +48,9 @@ PIN # USAGE (colors from my extension cable, check your own)
 #endif
 
 // not counting dpad
-#define BUTTON_COUNT 12
+const int BUTTON_COUNT = 12;
 
-#define JOYSTICK_STATE_SIZE 6
-
-#define AXIS_CENTER_IN 128
-#define AXIS_MAX_IN 255
-#define AXIS_MIN_IN 0
+const int JOYSTICK_STATE_SIZE = 6;
 
 //#define DEBUG
 
@@ -62,6 +58,7 @@ PIN # USAGE (colors from my extension cable, check your own)
 #include "util.cpp"
 
 GAMEPAD_CLASS gamepad;
+
 
 enum
 {
@@ -305,6 +302,7 @@ void setup() {
 #ifdef DEBUG
 	Serial.begin(115200);
 #endif
+	setBounds(255, 0, 128);
 	gamepad.begin();
 
 	pinMode(DATA1, INPUT_PULLUP);

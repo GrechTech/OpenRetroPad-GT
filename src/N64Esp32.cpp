@@ -16,7 +16,7 @@ PIN # USAGE
 
 #include "pins.h"
 
-#define DATA_PIN OR_PIN_2
+const int DATA_PIN = OR_PIN_2;
 
 //#define PRINT_Y_AXIS_VALUES 1
 //#define PRINT_X_AXIS_VALUES 1
@@ -24,13 +24,12 @@ PIN # USAGE
 //#define DEBUG
 //#define PRINT_DATA
 
+const int AXIS_MAX_IN = 70;
+const int AXIS_MIN_IN = -70;
+
 #ifndef GAMEPAD_COUNT
 #define GAMEPAD_COUNT 1
 #endif
-
-#define AXIS_CENTER_IN 0
-#define AXIS_MAX_IN 70
-#define AXIS_MIN_IN -70
 
 #include "gamepad/Gamepad.h"
 #include "util.cpp"
@@ -38,10 +37,10 @@ PIN # USAGE
 #define LINE_WRITE_HIGH pinMode(DATA_PIN, INPUT_PULLUP)
 #define LINE_WRITE_LOW pinMode(DATA_PIN, OUTPUT)
 
-#define DATA_SIZE 2048	// number of sample points to poll
-#define CALIBRATE_PASSES 5
+const int DATA_SIZE = 2048;	// number of sample points to poll
+const int CALIBRATE_PASSES = 5;
 
-#define NUM_BITS 32
+const int NUM_BITS = 32;
 
 // buffer to hold data being read from controller
 bool buffer[DATA_SIZE];
@@ -347,7 +346,7 @@ void setup() {
 	Serial.begin(115200);
 	delay(5000);
 #endif
-
+	setBounds(AXIS_MAX_IN, AXIS_MIN_IN, 0);
 	gamepad.begin();
 
 	// setup io pins
