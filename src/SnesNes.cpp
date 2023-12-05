@@ -284,7 +284,7 @@ void controllerChanged(const int c) {
 	} else if (controllers.down(c, GameControllers::LEFT)) {
 		gamepad.setHatSync(c, DPAD_LEFT);
 	} else {
-		gamepad.setHatSync(c, DPAD_CENTERED);
+		gamepad.setHatSync(c, DPAD_CENTERED_OR);
 	}
 }
 

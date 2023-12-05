@@ -177,7 +177,7 @@ class Joystick_ {
 		} else if (down(PS_BTN_LEFT)) {
 			return DPAD_LEFT;
 		} else {
-			return DPAD_CENTERED;
+			return DPAD_CENTERED_OR;
 		}
 	}
 
@@ -250,7 +250,7 @@ class Joystick_ {
 #endif
 
 		//gamepad.buttons(i, *(uint16_t*)(&data[0]));
-		//gamepad.setHatSync(i, DPAD_CENTERED);
+		//gamepad.setHatSync(i, DPAD_CENTERED_OR);
 		gamepad.buttons(c, 0);
 		// if start and select are held at the same time, send menu and only menu
 		if (down(PS_BTN_START) && down(PS_BTN_SELECT)) {

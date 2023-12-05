@@ -40,7 +40,7 @@ uint8_t calculateDpadDirection(const bool up, const bool down, const bool left, 
 	} else if (left) {
 		return DPAD_LEFT;
 	} else {
-		return DPAD_CENTERED;
+		return DPAD_CENTERED_OR;
 	}
 }
 

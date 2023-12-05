@@ -43,6 +43,39 @@ extern uint8_t gamepad_count;
 #define TRIGGER_MAX 255
 #define TRIGGER_MIN 0
 
+#elif GAMEPAD_OUTPUT == 6	 // fast bt
+
+#define BUTTON_A 1
+#define BUTTON_B 2
+#define BUTTON_MENU 4
+#define BUTTON_X 3
+#define BUTTON_Y 4
+#define BUTTON_TL 5
+#define BUTTON_TR 6
+#define BUTTON_TL2 11
+#define BUTTON_TR2 12
+#define BUTTON_SELECT 7
+#define BUTTON_START 8
+#define BUTTON_THUMBL 9
+#define BUTTON_THUMBR 10
+
+#define DPAD_CENTER 0
+#define DPAD_UP 1
+#define DPAD_UP_RIGHT 2
+#define DPAD_RIGHT 3
+#define DPAD_DOWN_RIGHT 4
+#define DPAD_DOWN 5
+#define DPAD_DOWN_LEFT 6
+#define DPAD_LEFT 7
+#define DPAD_UP_LEFT 8
+
+#define AXIS_CENTER 0
+#define AXIS_MAX 32767
+#define AXIS_MIN -32767
+
+#define TRIGGER_MAX 255
+#define TRIGGER_MIN 0
+
 #else
 
 #define BUTTON_A 1
@@ -91,7 +124,7 @@ extern uint8_t gamepad_count;
 #define BUTTON_L3 BUTTON_THUMBL
 #define BUTTON_R3 BUTTON_THUMBR
 
-#define DPAD_CENTERED DPAD_CENTER
+#define DPAD_CENTERED_OR DPAD_CENTER
 // end aliases
 
 #if 0

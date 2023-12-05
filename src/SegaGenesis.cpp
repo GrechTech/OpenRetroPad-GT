@@ -342,7 +342,7 @@ void controllerChanged(const int c) {
 	if (controllers.down(c, SC_BTN_START) && controllers.dpad(c, SC_BTN_DOWN)) {
 		gamepad.buttons(c, 0);
 		gamepad.press(c, BUTTON_MENU);
-		gamepad.setHatSync(c, DPAD_CENTERED);
+		gamepad.setHatSync(c, DPAD_CENTERED_OR);
 		return;
 	}
 	if (controllers.dpad(c, SC_BTN_DOWN)) {
@@ -366,7 +366,7 @@ void controllerChanged(const int c) {
 	} else if (controllers.dpad(c, SC_BTN_LEFT)) {
 		gamepad.setHatSync(c, DPAD_LEFT);
 	} else {
-		gamepad.setHatSync(c, DPAD_CENTERED);
+		gamepad.setHatSync(c, DPAD_CENTERED_OR);
 	}
 }
 

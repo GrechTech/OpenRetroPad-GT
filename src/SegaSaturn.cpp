@@ -277,7 +277,7 @@ void loop() {
 			if (hat == DPAD_DOWN && gamepad.isPressed(gp, BUTTON_START)) {
 				gamepad.buttons(gp, 0);
 				gamepad.press(gp, BUTTON_MENU);
-				gamepad.setHatSync(gp, DPAD_CENTERED);
+				gamepad.setHatSync(gp, DPAD_CENTERED_OR);
 				currentGamepad.changed(gp, gamepad);
 				return;
 			}
