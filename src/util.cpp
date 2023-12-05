@@ -4,6 +4,11 @@ int axis_center_in = 0;
 int trigger_max_in = 127;
 int trigger_min_in = -127;
 
+#ifndef GAMEPAD_COUNT
+#define GAMEPAD_COUNT 1
+#endif
+uint8_t gamepad_count = GAMEPAD_COUNT;
+
 void setBounds(int _axis_max_in = 32767, int _axis_min_in = -32767, int _axis_center_in = 0, int _trigger_max_in = 127, int _trigger_min_in = -127)
 {
 	axis_max_in = _axis_max_in;

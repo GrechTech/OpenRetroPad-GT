@@ -23,7 +23,6 @@ Wii Nunchuck/Wii Classic/SNES+NES Classic:
 #include <Arduino.h>
 
 // we only support 1 pad here
-#define GAMEPAD_COUNT 1
 
 #include <NintendoExtensionCtrl.h>
 

@@ -13,7 +13,7 @@ class BleConnectionStatus : public BLEServerCallbacks {
 	bool connected = false;
 	void onConnect(BLEServer *pServer);
 	void onDisconnect(BLEServer *pServer);
-	BLECharacteristic *inputGamepad[GAMEPAD_COUNT];
+	BLECharacteristic *inputGamepad[GAMEPAD_COUNT_MAX];
 };
 
 #endif	// CONFIG_BT_ENABLED

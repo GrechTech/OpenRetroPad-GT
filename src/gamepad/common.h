@@ -2,6 +2,7 @@
 #ifndef GAMEPAD_COMMON_H
 #define GAMEPAD_COMMON_H
 
+extern uint8_t gamepad_count;
 #include <Arduino.h>
 
 #include "HIDTypes.h"
@@ -235,8 +236,8 @@ static const uint8_t _hidReportDescriptor[] PROGMEM = {
 
 class AbstractGamepad {
    public:
-	uint32_t _buttons[GAMEPAD_COUNT];
-	uint8_t _dpad[GAMEPAD_COUNT];
+	uint32_t _buttons[GAMEPAD_COUNT_MAX];
+	uint8_t _dpad[GAMEPAD_COUNT_MAX];
 	uint8_t gamepadReport[GAMEPAD_REPORT_LEN + GAMEPAD_REPORT_ARRAY_ADD];
 
 	AbstractGamepad() {

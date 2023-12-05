@@ -34,7 +34,7 @@ class BleGamepad : public AbstractGamepad {
    private:
 	BleConnectionStatus *connectionStatus;
 	BLEHIDDevice *hid;
-	BLECharacteristic *inputGamepad[GAMEPAD_COUNT];
+	BLECharacteristic *inputGamepad[GAMEPAD_COUNT_MAX];
 	void rawAction(uint8_t msg[], char msgSize);
 	static void taskServer(void *pvParameter) {
 		BleGamepad *BleGamepadInstance = (BleGamepad *)pvParameter;	 // static_cast<BleGamepad *>(pvParameter);
@@ -44,7 +44,7 @@ class BleGamepad : public AbstractGamepad {
 
 		BleGamepadInstance->hid = new BLEHIDDevice(pServer);
 
-		for (int c = 0; c < GAMEPAD_COUNT; c++) {
+		for (int c = 0; c < gamepad_count; c++) {
 			BleGamepadInstance->inputGamepad[c] = BleGamepadInstance->hid->inputReport(c);	// <-- input REPORTID from report map
 			BleGamepadInstance->connectionStatus->inputGamepad[c] = BleGamepadInstance->inputGamepad[c];
 		}

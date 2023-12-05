@@ -27,10 +27,6 @@ const int DATA_PIN = OR_PIN_2;
 const int AXIS_MAX_IN = 70;
 const int AXIS_MIN_IN = -70;
 
-#ifndef GAMEPAD_COUNT
-#define GAMEPAD_COUNT 1
-#endif
-
 #include "gamepad/Gamepad.h"
 #include "util.cpp"
 

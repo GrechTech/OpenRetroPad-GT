@@ -7,6 +7,8 @@
 
 #define GAMEPAD_REPORT_ARRAY_ADD 1
 
+uint8_t gamepad_count = 1;
+
 #include "gamepad/Gamepad.h"
 
 #include "pins.h"

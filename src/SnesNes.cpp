@@ -1,21 +1,18 @@
 
 #include "Arduino.h"
 
-#ifndef GAMEPAD_COUNT
-#define GAMEPAD_COUNT 2
-#endif
 const int BUTTON_COUNT = 12;	 // SNES has 12, NES only has 8
 
 #include "pins.h"
+
+const int GAMEPAD_COUNT_MAX_NES = 4; 
 
 //shared pins between all controllers
 static const int LATCH_PIN = OR_PIN_1;	// brown
 static const int CLOCK_PIN = OR_PIN_2;	// white
 
 const int DATA_P1 = OR_PIN_3;
-const int DATA_P2 = OR_PIN_4;
 const int DATA_P3 = OR_PIN_5;
-const int DATA_P4 = OR_PIN_6;
 
 #ifdef BLUERETRO_MAPPING
 const int DATA_P2 = OR_PIN_10;
@@ -26,18 +23,13 @@ const int DATA_P4 = OR_PIN_6;
 #endif
 
 //individual data pin for each controller
-static const int DATA_PIN[GAMEPAD_COUNT] = {
+static const int DATA_PIN[GAMEPAD_COUNT_MAX_NES] = {
 	DATA_P1,
-#if GAMEPAD_COUNT > 1
 	DATA_P2,
-#endif
-#if GAMEPAD_COUNT > 2
 	DATA_P3,
-#endif
-#if GAMEPAD_COUNT > 3
 	DATA_P4,
-#endif
 };
+
 // power red, ground black
 
 //#define DEBUG
@@ -73,14 +65,14 @@ class GameControllers {
 		L = 10,
 		R = 11,
 	};
-	Type types[GAMEPAD_COUNT];
+	Type types[GAMEPAD_COUNT_MAX_NES];
 	int latchPin;
 	int clockPin;
-	int dataPins[GAMEPAD_COUNT];
-	long buttons[GAMEPAD_COUNT][12];
+	int dataPins[GAMEPAD_COUNT_MAX_NES];
+	long buttons[GAMEPAD_COUNT_MAX_NES][12];
 	int maxButtons = 12;
 
-	int changedControllers[GAMEPAD_COUNT];
+	int changedControllers[GAMEPAD_COUNT_MAX_NES];
 
 	///This has to be initialized once for the shared pins latch and clock
 	void init(int latch, int clock) {
@@ -111,7 +103,7 @@ class GameControllers {
 		delayMicroseconds(6);
 		//Serial.print("snes: ");
 		for (int i = 0; i < maxButtons; i++) {
-			for (int c = 0; c < GAMEPAD_COUNT; c++) {
+			for (int c = 0; c < gamepad_count; c++) {
 				if (digitalRead(dataPins[c])) {
 					// up
 					//Serial.print("-");
@@ -137,7 +129,7 @@ class GameControllers {
 		}
 		//Serial.println();
 
-		for (int c = 0; c < GAMEPAD_COUNT; c++) {
+		for (int c = 0; c < gamepad_count; c++) {
 			// have any buttons changed state?
 			if (1 == changedControllers[c]) {
 				controllerChanged(c);
@@ -225,14 +217,14 @@ void setup() {
 	controllers.init(LATCH_PIN, CLOCK_PIN);
 
 	//activate first controller and set the type to SNES
-	for (int c = 0; c < GAMEPAD_COUNT; c++) {
+	for (int c = 0; c < gamepad_count; c++) {
 		controllers.setController(c, GameControllers::SNES, DATA_PIN[c]);
 	}
 
 	// poll controllers once to detect NES vs SNES
 	controllers.poll(dummyControllerChanged);
 
-	for (int c = 0; c < GAMEPAD_COUNT; c++) {
+	for (int c = 0; c < gamepad_count; c++) {
 		// for NES, A+X+L+R are down always, re-initialize
 		if (controllers.down(c, GameControllers::A) && controllers.down(c, GameControllers::X) && controllers.down(c, GameControllers::L) && controllers.down(c, GameControllers::R)) {
 #ifdef DEBUG

@@ -21,6 +21,8 @@ PIN # USAGE (colors from my extension cable, check your own)
 
 #include "Arduino.h"
 
+const int GAMEPAD_MAX_PS = 2;
+
 #include "pins.h"
 
 const int DATA1 = OR_PIN_2;
@@ -42,10 +44,6 @@ const int CTRL_BYTE_DELAY = 18;
 const int CTRL_BYTE_DELAY = 6;
 
 #endif	// esp32 vs micro delay
-
-#ifndef GAMEPAD_COUNT
-#define GAMEPAD_COUNT 4
-#endif
 
 // not counting dpad
 const int BUTTON_COUNT = 12;
@@ -270,7 +268,7 @@ class Joystick_ {
 	}
 };
 
-Joystick_ Joystick[GAMEPAD_COUNT];
+Joystick_ Joystick[GAMEPAD_MAX_PS];
 
 uint8_t shift(uint8_t _dataOut)	 // Does the actual shifting, both in and out simultaneously
 {
@@ -338,7 +336,7 @@ void loop() {
 	multitap = shift(0x42);
 	padding = shift(0x00);	//next time normal read
 	if (multitap == 0x80) {
-		for (uint8_t i = 0; i < GAMEPAD_COUNT; i++) {
+		for (uint8_t i = 0; i < gamepad_count; i++) {
 			Joystick[i].type = shift(0x00);
 			padding = shift(0x00);
 			Joystick[i].data[0] = ~shift(0x00);	 //buttons
@@ -356,7 +354,7 @@ void loop() {
 	Serial.println(multitap, HEX);
 #endif
 
-	for (uint8_t i = 0; i < GAMEPAD_COUNT; i++) {
+	for (uint8_t i = 0; i < gamepad_count; i++) {
 		Joystick[i].updateState(i);
 	}
 

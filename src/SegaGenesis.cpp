@@ -16,10 +16,7 @@ PIN # USAGE
 */
 #include "Arduino.h"
 
-#ifndef GAMEPAD_COUNT
-#define GAMEPAD_COUNT 2
-#endif
-
+const int GAMEPAD_COUNT_MAX_GEN = 2;
 const int BUTTON_COUNT = 9;
 const int PIN_COUNT = 6;
 
@@ -61,11 +58,9 @@ const int P2_6 = OR_PIN_15;
 const int P2_7 = OR_PIN_7;
 #endif
 
-static const int DATA_PIN_SELECT[GAMEPAD_COUNT] = {
+static const int DATA_PIN_SELECT[GAMEPAD_COUNT_MAX_GEN] = {
 	OR_PIN_5,
-#if GAMEPAD_COUNT > 1
 	P2_7,
-#endif
 };
 
 #if CODE_PLATFORM == 2
@@ -74,11 +69,9 @@ static const int DATA_PIN_SELECT[GAMEPAD_COUNT] = {
 #define OPT_PIN_READ2(X) (bitRead(reg2, DATA_PIN[c][X]))
 
 //individual data pin BIT for each controller, they are read in bulk
-static const int DATA_PIN[GAMEPAD_COUNT][PIN_COUNT] = {
+static const int DATA_PIN[GAMEPAD_COUNT_MAX_GEN][PIN_COUNT] = {
 	{3, 2, 1, 0, 4, 7},
-#if GAMEPAD_COUNT > 1
 	{7, 6, 5, 4, 3, 1},
-#endif
 };
 
 #else
@@ -87,11 +80,9 @@ static const int DATA_PIN[GAMEPAD_COUNT][PIN_COUNT] = {
 #define OPT_PIN_READ2(X) (digitalRead(DATA_PIN[c][X]))
 
 //individual data pin for each controller
-static const int DATA_PIN[GAMEPAD_COUNT][PIN_COUNT] = {
+static const int DATA_PIN[GAMEPAD_COUNT_MAX_GEN][PIN_COUNT] = {
 	{OR_PIN_1, OR_PIN_11, OR_PIN_2, OR_PIN_3, P1_5, P1_6},
-#if GAMEPAD_COUNT > 1
 	{OR_PIN_18, OR_PIN_19, OR_PIN_20, OR_PIN_21, P2_5, P2_6},
-#endif
 };
 
 #endif	// CODE_PLATFORM
@@ -102,15 +93,15 @@ class SegaControllers32U4 {
    public:
 	SegaControllers32U4(void);
 	void readState();
-	byte currentDpadState[GAMEPAD_COUNT];
-	word currentState[GAMEPAD_COUNT];
+	byte currentDpadState[GAMEPAD_COUNT_MAX_GEN];
+	word currentState[GAMEPAD_COUNT_MAX_GEN];
 	// Controller previous states
-	word lastState[GAMEPAD_COUNT];
-	byte lastDpadState[GAMEPAD_COUNT];
+	word lastState[GAMEPAD_COUNT_MAX_GEN];
+	byte lastDpadState[GAMEPAD_COUNT_MAX_GEN];
 
 	void poll(void (*controllerChanged)(const int c)) {
 		readState();
-		for (int c = 0; c < GAMEPAD_COUNT; c++) {
+		for (int c = 0; c < gamepad_count; c++) {
 			if (currentState[c] != lastState[c] || currentDpadState[c] != lastDpadState[c]) {
 				controllerChanged(c);
 				lastState[c] = currentState[c];
@@ -152,25 +143,25 @@ class SegaControllers32U4 {
    private:
 	boolean _pinSelect;
 
-	byte _ignoreCycles[GAMEPAD_COUNT];
+	byte _ignoreCycles[GAMEPAD_COUNT_MAX_GEN];
 
-	boolean _connected[GAMEPAD_COUNT];
-	boolean _sixButtonMode[GAMEPAD_COUNT];
+	boolean _connected[GAMEPAD_COUNT_MAX_GEN];
+	boolean _sixButtonMode[GAMEPAD_COUNT_MAX_GEN];
 
 #if CODE_PLATFORM == 2
 	void readPort(byte c, byte reg1, byte reg2);
 	byte _inputReg3;
-#if GAMEPAD_COUNT > 1
+
 	byte _inputReg1;
 	byte _inputReg2;
-#endif	// GAMEPAD_COUNT
+
 #else
 	void readPort(byte c);
 #endif	// CODE_PLATFORM
 };
 
 SegaControllers32U4::SegaControllers32U4(void) {
-	for (int c = 0; c < GAMEPAD_COUNT; c++) {
+	for (int c = 0; c < gamepad_count; c++) {
 		// Setup output pin
 		pinMode(DATA_PIN_SELECT[c], OUTPUT);
 		digitalWrite(DATA_PIN_SELECT[c], HIGH);
@@ -182,7 +173,7 @@ SegaControllers32U4::SegaControllers32U4(void) {
 	}
 
 	_pinSelect = true;
-	for (int c = 0; c < GAMEPAD_COUNT; c++) {
+	for (int c = 0; c < gamepad_count; c++) {
 		currentState[c] = 0;
 		lastState[c] = 0;
 		currentDpadState[c] = 0;
@@ -211,15 +202,17 @@ void SegaControllers32U4::readState() {
 
 	// Read all input registers
 	_inputReg3 = PIND;
-#if GAMEPAD_COUNT > 1
-	_inputReg1 = PINF;
-	_inputReg2 = PINB;
-#endif
+	if (gamepad_count > 1)
+	{
+		_inputReg1 = PINF;
+		_inputReg2 = PINB;
+	}
 
 	readPort(0, _inputReg3, _inputReg3);
-#if GAMEPAD_COUNT > 1
-	readPort(1, _inputReg1, _inputReg2);
-#endif
+	if (gamepad_count > 1)
+	{
+		readPort(1, _inputReg1, _inputReg2);
+	}
 }
 
 #else
@@ -228,11 +221,11 @@ void SegaControllers32U4::readState() {
 	// Set the select pins low/high
 	_pinSelect = !_pinSelect;
 	if (!_pinSelect) {
-		for (int c = 0; c < GAMEPAD_COUNT; c++) {
+		for (int c = 0; c < gamepad_count; c++) {
 			digitalWrite(DATA_PIN_SELECT[c], LOW);
 		}
 	} else {
-		for (int c = 0; c < GAMEPAD_COUNT; c++) {
+		for (int c = 0; c < gamepad_count; c++) {
 			digitalWrite(DATA_PIN_SELECT[c], HIGH);
 		}
 	}
@@ -240,7 +233,7 @@ void SegaControllers32U4::readState() {
 	// Short delay to stabilise outputs in controller
 	delayMicroseconds(SC_CYCLE_DELAY);
 
-	for (int c = 0; c < GAMEPAD_COUNT; c++) {
+	for (int c = 0; c < gamepad_count; c++) {
 		readPort(c);
 	}
 }

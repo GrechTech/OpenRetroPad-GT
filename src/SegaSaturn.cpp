@@ -31,10 +31,6 @@ NOTE: The receiver of the Retro Bit 2.4GHz controller needs to be plugged
 //#define digitalWriteFast digitalWrite
 //#define digitalReadFast digitalRead
 
-#ifndef GAMEPAD_COUNT
-#define GAMEPAD_COUNT 2
-#endif
-
 #include "gamepad/Gamepad.h"
 
 // How many microseconds to wait after setting select lines? (2µs is enough according to the Saturn developer's manual)
@@ -55,15 +51,11 @@ const int P1_8 = OR_PIN_11;
 
 const int PX_5 = OR_PIN_5;
 
-#if GAMEPAD_COUNT == 2
-
 const int P2_2 = OR_PIN_20;
 const int P2_3 = OR_PIN_21;
 const int P2_6 = OR_PIN_10;
 const int P2_7 = OR_PIN_18;
 const int P2_8 = OR_PIN_19;
-
-#endif
 
 #ifdef BLUERETRO_MAPPING
 const int P1_6 = ALT_PIN_1;
@@ -100,24 +92,25 @@ void read1() {
 		// R
 		currentGamepad.press(0, BUTTON_R2);
 	}
-#if GAMEPAD_COUNT == 2
-	if (!digitalReadFast(P2_3)) {
-		// Z
-		currentGamepad.press(1, BUTTON_R);
+	if (gamepad_count == 2)
+	{
+		if (!digitalReadFast(P2_3)) {
+			// Z
+			currentGamepad.press(1, BUTTON_R);
+		}
+		if (!digitalReadFast(P2_2)) {
+			// Y
+			currentGamepad.press(1, BUTTON_X);
+		}
+		if (!digitalReadFast(P2_8)) {
+			// X
+			currentGamepad.press(1, BUTTON_L);
+		}
+		if (!digitalReadFast(P2_7)) {
+			// R
+			currentGamepad.press(1, BUTTON_R2);
+		}
 	}
-	if (!digitalReadFast(P2_2)) {
-		// Y
-		currentGamepad.press(1, BUTTON_X);
-	}
-	if (!digitalReadFast(P2_8)) {
-		// X
-		currentGamepad.press(1, BUTTON_L);
-	}
-	if (!digitalReadFast(P2_7)) {
-		// R
-		currentGamepad.press(1, BUTTON_R2);
-	}
-#endif
 }
 
 // Read ST, A, C, B
@@ -142,24 +135,25 @@ void read2() {
 		// ST
 		currentGamepad.press(0, BUTTON_START);
 	}
-#if GAMEPAD_COUNT == 2
-	if (!digitalReadFast(P2_3)) {
-		// B
-		currentGamepad.press(1, BUTTON_B);
+	if (gamepad_count == 2)
+	{
+		if (!digitalReadFast(P2_3)) {
+			// B
+			currentGamepad.press(1, BUTTON_B);
+		}
+		if (!digitalReadFast(P2_2)) {
+			// C
+			currentGamepad.press(1, BUTTON_A);
+		}
+		if (!digitalReadFast(P2_8)) {
+			// A
+			currentGamepad.press(1, BUTTON_Y);
+		}
+		if (!digitalReadFast(P2_7)) {
+			// ST
+			currentGamepad.press(1, BUTTON_START);
+		}
 	}
-	if (!digitalReadFast(P2_2)) {
-		// C
-		currentGamepad.press(1, BUTTON_A);
-	}
-	if (!digitalReadFast(P2_8)) {
-		// A
-		currentGamepad.press(1, BUTTON_Y);
-	}
-	if (!digitalReadFast(P2_7)) {
-		// ST
-		currentGamepad.press(1, BUTTON_START);
-	}
-#endif
 }
 
 // Read DR, DL, DD, DU
@@ -184,24 +178,25 @@ void read3() {
 		// RIGHT
 		currentGamepad.pressDpad(0, DPAD_BIT_RIGHT);
 	}
-#if GAMEPAD_COUNT == 2
-	if (!digitalReadFast(P2_3)) {
-		// UP
-		currentGamepad.pressDpad(1, DPAD_BIT_UP);
+	if (gamepad_count == 2)
+	{
+		if (!digitalReadFast(P2_3)) {
+			// UP
+			currentGamepad.pressDpad(1, DPAD_BIT_UP);
+		}
+		if (!digitalReadFast(P2_2)) {
+			// DOWN
+			currentGamepad.pressDpad(1, DPAD_BIT_DOWN);
+		}
+		if (!digitalReadFast(P2_8)) {
+			// LEFT
+			currentGamepad.pressDpad(1, DPAD_BIT_LEFT);
+		}
+		if (!digitalReadFast(P2_7)) {
+			// RIGHT
+			currentGamepad.pressDpad(1, DPAD_BIT_RIGHT);
+		}
 	}
-	if (!digitalReadFast(P2_2)) {
-		// DOWN
-		currentGamepad.pressDpad(1, DPAD_BIT_DOWN);
-	}
-	if (!digitalReadFast(P2_8)) {
-		// LEFT
-		currentGamepad.pressDpad(1, DPAD_BIT_LEFT);
-	}
-	if (!digitalReadFast(P2_7)) {
-		// RIGHT
-		currentGamepad.pressDpad(1, DPAD_BIT_RIGHT);
-	}
-#endif
 }
 
 // Read L, *, *, *
@@ -214,12 +209,13 @@ void read4() {
 		// L
 		currentGamepad.press(0, BUTTON_L2);
 	}
-#if GAMEPAD_COUNT == 2
-	if (!digitalReadFast(P2_7)) {
-		// L
-		currentGamepad.press(1, BUTTON_L2);
+	if (gamepad_count == 2)
+	{
+		if (!digitalReadFast(P2_7)) {
+			// L
+			currentGamepad.press(1, BUTTON_L2);
+		}
 	}
-#endif
 }
 
 void setup() {
@@ -240,21 +236,22 @@ void setup() {
 	pinMode(P1_6, INPUT_PULLUP);
 	digitalWrite(P1_6, HIGH);
 
-#if GAMEPAD_COUNT == 2
-	// Set P2 data pins as inputs and enable pull-up resistors
-	pinMode(P2_3, INPUT_PULLUP);
-	pinMode(P2_2, INPUT_PULLUP);
-	pinMode(P2_7, INPUT_PULLUP);
-	pinMode(P2_8, INPUT_PULLUP);
-	digitalWrite(P2_3, HIGH);
-	digitalWrite(P2_2, HIGH);
-	digitalWrite(P2_7, HIGH);
-	digitalWrite(P2_8, HIGH);
+	if (gamepad_count == 2)
+	{
+		// Set P2 data pins as inputs and enable pull-up resistors
+		pinMode(P2_3, INPUT_PULLUP);
+		pinMode(P2_2, INPUT_PULLUP);
+		pinMode(P2_7, INPUT_PULLUP);
+		pinMode(P2_8, INPUT_PULLUP);
+		digitalWrite(P2_3, HIGH);
+		digitalWrite(P2_2, HIGH);
+		digitalWrite(P2_7, HIGH);
+		digitalWrite(P2_8, HIGH);
 
-	// Set P2 TL as input and enable pull-up resistor
-	pinMode(P2_6, INPUT_PULLUP);
-	digitalWrite(P2_6, HIGH);
-#endif
+		// Set P2 TL as input and enable pull-up resistor
+		pinMode(P2_6, INPUT_PULLUP);
+		digitalWrite(P2_6, HIGH);
+	}
 
 	// Set P1+P2 select pins as outputs and set them HIGH
 	pinMode(PX_4, OUTPUT);
@@ -274,7 +271,7 @@ void loop() {
 	read4();
 
 	// Send data to USB if values have changed
-	for (uint8_t gp = 0; gp < GAMEPAD_COUNT; gp++) {
+	for (uint8_t gp = 0; gp < gamepad_count; gp++) {
 		if (currentGamepad.changed(gp, gamepad)) {
 			const auto hat = gamepad.getHat(gp);
 			if (hat == DPAD_DOWN && gamepad.isPressed(gp, BUTTON_START)) {

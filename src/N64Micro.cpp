@@ -55,8 +55,6 @@ const int POLL_DELAY = 14;
 
 //#define DEBUG
 
-#ifdef GAMECUBE
-
 /*
 // these are my average values from my apparantly very bad wavebird controller
 #define AXIS_CENTER_IN 135

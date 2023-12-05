@@ -121,7 +121,7 @@ class UsbGamepad : public AbstractGamepad {
    public:
 	String deviceManufacturer;
 	String deviceName;
-	Gamepad_ gamepad[GAMEPAD_COUNT];
+	Gamepad_ gamepad[GAMEPAD_COUNT_MAX];
 
 	UsbGamepad(String deviceName = "8BitDo SN30 Pro+", String deviceManufacturer = "8Bitdo SF30 Pro") : AbstractGamepad() {
 		this->deviceName = deviceName;

@@ -5,6 +5,8 @@
 
 GAMEPAD_CLASS gamepad;
 
+uint8_t gamepad_count = 1;
+
 uint8_t c = 0;
 
 void setup() {
