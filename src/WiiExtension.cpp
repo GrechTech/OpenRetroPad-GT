@@ -20,31 +20,27 @@ Wii Nunchuck/Wii Classic/SNES+NES Classic:
   6:  GND                - black
 */
 
-#include <Arduino.h>
+#include "main.h"
 
 // we only support 1 pad here
 
 #include <NintendoExtensionCtrl.h>
 
-#include "gamepad/Gamepad.h"
-#include "util.cpp"
-
-GAMEPAD_CLASS gamepad;
 
 ExtensionPort port;	 // Port for communicating with extension controllers
 
 Nunchuk::Shared nchuk(port);			  // Read Nunchuk formatted data from the port
 ClassicController::Shared classic(port);  // Read Classic Controller formatted data from the port
 
-NintendoExtensionCtrl::ExtensionController* controllers[] = {
+NintendoExtensionCtrl::ExtensionController* controllersWii[] = {
 	// Array of available controllers, for controller-specific init
 	&nchuk,
 	&classic,
 };
 
-const int NumControllers = sizeof(controllers) / sizeof(NintendoExtensionCtrl::ExtensionController*);	// # of controllers, auto-generated
+const int NumControllers = sizeof(controllersWii) / sizeof(NintendoExtensionCtrl::ExtensionController*);	// # of controllers, auto-generated
 
-void (*controllerChanged)();
+void (*controllerChangedWii)();
 
 const uint8_t c = 0;  // for now just do 1 pad
 
@@ -113,16 +109,16 @@ boolean connectController() {
 
 	if (connected == true) {
 		for (int i = 0; i < NumControllers; i++) {
-			if (controllers[i]->controllerTypeMatches()) {	 // If this controller is connected...
-				connected = controllers[i]->specificInit();	 // ...run the controller-specific initialization
+			if (controllersWii[i]->controllerTypeMatches()) {	 // If this controller is connected...
+				connected = controllersWii[i]->specificInit();	 // ...run the controller-specific initialization
 				if (connected == true) {
 					ExtensionType conType = port.getControllerType();
 					switch (conType) {
 						case (ExtensionType::Nunchuk):
-							controllerChanged = nunchuckChanged;
+							controllerChangedWii = nunchuckChanged;
 							break;
 						case (ExtensionType::ClassicController):
-							controllerChanged = classicChanged;
+							controllerChangedWii = classicChanged;
 							break;
 						default:
 							//Serial.println("Other controller connected!");
@@ -137,7 +133,11 @@ boolean connectController() {
 	return connected;
 }
 
+#ifdef UNIVERSAL_MODE
+void setup_wii() {
+#else
 void setup() {
+#endif
 	setupBrLed();
 	setBounds(230, 15, 126, 255, 40);
 	gamepad.begin();
@@ -149,12 +149,16 @@ void setup() {
 	}
 }
 
+#ifdef UNIVERSAL_MODE
+void loop_wii() {
+#else
 void loop() {
+#endif
 	boolean success = port.update();  // Get new data from the controller
 
 	if (success == true) {	// We've got data!
 		// todo: only call this if data changed?
-		controllerChanged();
+		controllerChangedWii();
 	} else {  // Data is bad :(
 		while (!connectController()) {
 			//Serial.println("Controller Disconnected!");

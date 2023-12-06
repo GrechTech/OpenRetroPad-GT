@@ -19,11 +19,9 @@ PIN # USAGE (colors from my extension cable, check your own)
 
 */
 
-#include "Arduino.h"
+#include "main.h"
 
 const int GAMEPAD_MAX_PS = 2;
-
-#include "pins.h"
 
 const int DATA1 = OR_PIN_2;
 const int CMD1 = OR_PIN_3;
@@ -46,16 +44,11 @@ const int CTRL_BYTE_DELAY = 6;
 #endif	// esp32 vs micro delay
 
 // not counting dpad
-const int BUTTON_COUNT = 12;
+const int BUTTON_COUNT_PS = 12;
 
 const int JOYSTICK_STATE_SIZE = 6;
 
 //#define DEBUG
-
-#include "gamepad/Gamepad.h"
-#include "util.cpp"
-
-GAMEPAD_CLASS gamepad;
 
 
 enum
@@ -87,7 +80,7 @@ enum
 };
 
 // pressing one of these buttons on the controller... (read below)
-static const uint16_t translateFromButton[BUTTON_COUNT] = {
+static const uint16_t translateFromButton[BUTTON_COUNT_PS] = {
 	PS_BTN_O,
 	PS_BTN_X,
 	PS_BTN_SQUARE,
@@ -103,7 +96,7 @@ static const uint16_t translateFromButton[BUTTON_COUNT] = {
 };
 
 // ... translates to one of these buttons over HID
-static const uint32_t translateToHid[BUTTON_COUNT] = {
+static const uint32_t translateToHidPs[BUTTON_COUNT_PS] = {
 	BUTTON_A,
 	BUTTON_B,
 	BUTTON_Y,
@@ -257,9 +250,9 @@ class Joystick_ {
 			gamepad.press(c, BUTTON_MENU);
 		} else {
 			// actually send buttons held
-			for (uint8_t btn = 0; btn < BUTTON_COUNT; btn++) {
+			for (uint8_t btn = 0; btn < BUTTON_COUNT_PS; btn++) {
 				if (down(translateFromButton[btn])) {
-					gamepad.press(c, translateToHid[btn]);
+					gamepad.press(c, translateToHidPs[btn]);
 				}
 			}
 		}
@@ -295,7 +288,11 @@ uint8_t shift(uint8_t _dataOut)	 // Does the actual shifting, both in and out si
 	return _dataIn;
 }
 
+#ifdef UNIVERSAL_MODE
+void setup_psx() {
+#else
 void setup() {
+#endif
 	setupBrLed();
 #ifdef DEBUG
 	Serial.begin(115200);
@@ -309,7 +306,11 @@ void setup() {
 	pinMode(CLK1, OUTPUT);
 }
 
+#ifdef UNIVERSAL_MODE
+void loop_psx() {
+#else
 void loop() {
+#endif
 	// http://problemkaputt.de/psx-spx.htm#controllerandmemorycardsignals
 	uint8_t head, padding, multitap;
 

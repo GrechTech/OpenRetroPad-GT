@@ -12,11 +12,9 @@ PIN # USAGE
     VCC +3.3V ONLY
 */
 
-#include "Arduino.h"
+#include "main.h"
 
-#include "pins.h"
-
-const int DATA_PIN = OR_PIN_2;
+const int DATA_PIN_N64 = OR_PIN_2;
 
 //#define PRINT_Y_AXIS_VALUES 1
 //#define PRINT_X_AXIS_VALUES 1
@@ -24,14 +22,11 @@ const int DATA_PIN = OR_PIN_2;
 //#define DEBUG
 //#define PRINT_DATA
 
-const int AXIS_MAX_IN = 70;
-const int AXIS_MIN_IN = -70;
+const int AXIS_MAX_IN_N64 = 70;
+const int AXIS_MIN_IN_N64 = -70;
 
-#include "gamepad/Gamepad.h"
-#include "util.cpp"
-
-#define LINE_WRITE_HIGH pinMode(DATA_PIN, INPUT_PULLUP)
-#define LINE_WRITE_LOW pinMode(DATA_PIN, OUTPUT)
+#define LINE_WRITE_HIGH pinMode(DATA_PIN_N64, INPUT_PULLUP)
+#define LINE_WRITE_LOW pinMode(DATA_PIN_N64, OUTPUT)
 
 const int DATA_SIZE = 2048;	// number of sample points to poll
 const int CALIBRATE_PASSES = 5;
@@ -47,8 +42,6 @@ int lastIndex = 0;
 
 bool returnedBits[NUM_BITS];
 bool oldReport[NUM_BITS];
-
-GAMEPAD_CLASS gamepad;
 
 struct ControllerData {
 	bool buttonA;
@@ -164,19 +157,19 @@ void IRAM_ATTR sendCommand(byte command) {
 		// this is faster:
 #if defined(ARDUINO_ARCH_ESP32)
 
-#if DATA_PIN < 32
-		buffer[i] = (GPIO.in >> DATA_PIN) & 0x1;
-#elif DATA_PIN < 40
-		buffer[i] = (GPIO.in1.val >> (DATA_PIN - 32)) & 0x1;
+#if DATA_PIN_N64 < 32
+		buffer[i] = (GPIO.in >> DATA_PIN_N64) & 0x1;
+#elif DATA_PIN_N64 < 40
+		buffer[i] = (GPIO.in1.val >> (DATA_PIN_N64 - 32)) & 0x1;
 #else
 
-#error unsupported DATA_PIN must be <40
+#error unsupported DATA_PIN_N64 must be <40
 
 #endif
 
 #else
 		// this is portable:
-		buffer[i] = digitalRead(DATA_PIN);
+		buffer[i] = digitalRead(DATA_PIN_N64);
 #endif	// not defined(ARDUINO_ARCH_ESP32)
 	}
 
@@ -320,29 +313,33 @@ void populateControllerStruct(ControllerData *data) {
 	}
 
 	// keep x axis below maxIncline
-	if (data->xAxis > AXIS_MAX_IN)
-		data->xAxis = AXIS_MAX_IN;
-	if (data->xAxis < AXIS_MIN_IN)
-		data->xAxis = AXIS_MIN_IN;
+	if (data->xAxis > AXIS_MAX_IN_N64)
+		data->xAxis = AXIS_MAX_IN_N64;
+	if (data->xAxis < AXIS_MIN_IN_N64)
+		data->xAxis = AXIS_MIN_IN_N64;
 
 	// keep y axis below maxIncline
-	if (data->yAxis > AXIS_MAX_IN)
-		data->yAxis = AXIS_MAX_IN;
-	if (data->yAxis < AXIS_MIN_IN)
-		data->yAxis = AXIS_MIN_IN;
+	if (data->yAxis > AXIS_MAX_IN_N64)
+		data->yAxis = AXIS_MAX_IN_N64;
+	if (data->yAxis < AXIS_MIN_IN_N64)
+		data->yAxis = AXIS_MIN_IN_N64;
 
 	//Serial.printf("xaxis: %-3i yaxis: %-3i \n",data->xAxis,data->yAxis);
 }
 
 ControllerData controller;
 
+#ifdef UNIVERSAL_MODE
+void setup_n64() {
+#else
 void setup() {
+#endif
 	setupBrLed();
 #ifdef DEBUG
 	Serial.begin(115200);
 	delay(5000);
 #endif
-	setBounds(AXIS_MAX_IN, AXIS_MIN_IN, 0);
+	setBounds(AXIS_MAX_IN_N64, AXIS_MIN_IN_N64, 0);
 	gamepad.begin();
 
 	// setup io pins
@@ -370,7 +367,11 @@ void setup() {
 #endif
 }
 
+#ifdef UNIVERSAL_MODE
+void loop_n64() {
+#else
 void loop() {
+#endif
 	// polling must not occur faster than every 20 ms
 	delay(14);
 

@@ -42,14 +42,12 @@ GAMECUBE:
   I tie all 3 grounds together
 */
 
-#include "pins.h"
+#include "main.h"
 
-const int DATA_PIN = OR_PIN_2;
+const int DATA_PIN_M64 = OR_PIN_2;
 
 // how often to poll, 100? 14? polling must not occur faster than every 20 ms
 const int POLL_DELAY = 14;
-
-#include "Arduino.h"
 
 #include "Nintendo.h"
 
@@ -73,9 +71,6 @@ const int POLL_DELAY = 14;
 #define TRIGGER_MIN_IN 0
 */
 
-#include "gamepad/Gamepad.h"
-#include "util.cpp"
-
 #ifdef GAMECUBE
 typedef CGamecubeController NintendoController;
 typedef Gamecube_Report_t ControllerReport;
@@ -87,11 +82,9 @@ typedef N64_Report_t ControllerReport;
 #endif
 
 // Define a Controller
-NintendoController controller(DATA_PIN);
+NintendoController controller(DATA_PIN_M64);
 
 uint8_t oldReport[NINTENDO_REPORT_SIZE];
-
-GAMEPAD_CLASS gamepad;
 
 #ifdef DEBUG
 void print_report(ControllerReport &controller) {
@@ -147,9 +140,13 @@ void print_report(ControllerReport &controller) {
 }
 #endif
 
+#ifdef UNIVERSAL_MODE
+void setup_m64() {
+#else
 void setup() {
+#endif
 	// n64 low because it *should* be 3.3V
-	digitalWrite(DATA_PIN, LOW);
+	digitalWrite(DATA_PIN_M64, LOW);
 #ifdef GAMECUBE
 	setBounds(255, 0, 128, 255, 0);
 #else
@@ -169,7 +166,11 @@ void setup() {
 	gamepad.begin();
 }
 
+#ifdef UNIVERSAL_MODE
+void loop_m64() {
+#else
 void loop() {
+#endif
 	delay(POLL_DELAY);
 	// Try to read the controller data
 	if (controller.read()) {

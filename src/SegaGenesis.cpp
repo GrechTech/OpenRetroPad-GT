@@ -14,15 +14,11 @@ PIN # USAGE
   5: 5V VCC
   8: GND
 */
-#include "Arduino.h"
+#include "main.h"
 
 const int GAMEPAD_COUNT_MAX_GEN = 2;
-const int BUTTON_COUNT = 9;
+const int BUTTON_COUNT_GENESIS = 9;
 const int PIN_COUNT = 6;
-
-#include "gamepad/Gamepad.h"
-
-#include "util.cpp"
 
 enum
 {
@@ -42,47 +38,45 @@ enum
 	SC_BTN_RIGHT = 8,
 };
 
-#include "pins.h"
-
 #ifdef BLUERETRO_MAPPING
-const int P1_5 = OR_PIN_10;
-const int P1_6 = ALT_PIN_1;
-const int P2_5 = ALT_PIN_3;
-const int P2_6 = ALT_PIN_4;
-const int P2_7 = ALT_PIN_2;
+const int SG_P1_5 = OR_PIN_10;
+const int SG_P1_6 = ALT_PIN_1;
+const int SG_P2_5 = ALT_PIN_3;
+const int SG_P2_6 = ALT_PIN_4;
+const int SG_P2_7 = ALT_PIN_2;
 #else
-const int P1_5 = OR_PIN_4;
-const int P1_6 = OR_PIN_6;
-const int P2_5 = OR_PIN_14;
-const int P2_6 = OR_PIN_15;
-const int P2_7 = OR_PIN_7;
+const int SG_P1_5 = OR_PIN_4;
+const int SG_P1_6 = OR_PIN_6;
+const int SG_P2_5 = OR_PIN_14;
+const int SG_P2_6 = OR_PIN_15;
+const int SG_P2_7 = OR_PIN_7;
 #endif
 
 static const int DATA_PIN_SELECT[GAMEPAD_COUNT_MAX_GEN] = {
 	OR_PIN_5,
-	P2_7,
+	SG_P2_7,
 };
 
 #if CODE_PLATFORM == 2
 
-#define OPT_PIN_READ1(X) (bitRead(reg1, DATA_PIN[c][X]))
-#define OPT_PIN_READ2(X) (bitRead(reg2, DATA_PIN[c][X]))
+#define OPT_PIN_READ1(X) (bitRead(reg1, DATA_PIN_GENSIS[c][X]))
+#define OPT_PIN_READ2(X) (bitRead(reg2, DATA_PIN_GENSIS[c][X]))
 
 //individual data pin BIT for each controller, they are read in bulk
-static const int DATA_PIN[GAMEPAD_COUNT_MAX_GEN][PIN_COUNT] = {
+static const int DATA_PIN_GENSIS[GAMEPAD_COUNT_MAX_GEN][PIN_COUNT] = {
 	{3, 2, 1, 0, 4, 7},
 	{7, 6, 5, 4, 3, 1},
 };
 
 #else
 
-#define OPT_PIN_READ1(X) (digitalRead(DATA_PIN[c][X]))
-#define OPT_PIN_READ2(X) (digitalRead(DATA_PIN[c][X]))
+#define OPT_PIN_READ1(X) (digitalRead(DATA_PIN_GENSIS[c][X]))
+#define OPT_PIN_READ2(X) (digitalRead(DATA_PIN_GENSIS[c][X]))
 
 //individual data pin for each controller
-static const int DATA_PIN[GAMEPAD_COUNT_MAX_GEN][PIN_COUNT] = {
-	{OR_PIN_1, OR_PIN_11, OR_PIN_2, OR_PIN_3, P1_5, P1_6},
-	{OR_PIN_18, OR_PIN_19, OR_PIN_20, OR_PIN_21, P2_5, P2_6},
+static const int DATA_PIN_GENSIS[GAMEPAD_COUNT_MAX_GEN][PIN_COUNT] = {
+	{OR_PIN_1, OR_PIN_11, OR_PIN_2, OR_PIN_3, SG_P1_5, SG_P1_6},
+	{OR_PIN_18, OR_PIN_19, OR_PIN_20, OR_PIN_21, SG_P2_5, SG_P2_6},
 };
 
 #endif	// CODE_PLATFORM
@@ -99,11 +93,11 @@ class SegaControllers32U4 {
 	word lastState[GAMEPAD_COUNT_MAX_GEN];
 	byte lastDpadState[GAMEPAD_COUNT_MAX_GEN];
 
-	void poll(void (*controllerChanged)(const int c)) {
+	void poll(void (*controllerChangedGenesis)(const int c)) {
 		readState();
 		for (int c = 0; c < gamepad_count; c++) {
 			if (currentState[c] != lastState[c] || currentDpadState[c] != lastDpadState[c]) {
-				controllerChanged(c);
+				controllerChangedGenesis(c);
 				lastState[c] = currentState[c];
 				lastDpadState[c] = currentDpadState[c];
 			}
@@ -168,7 +162,7 @@ SegaControllers32U4::SegaControllers32U4(void) {
 
 		// Setup input pins
 		for (byte i = 0; i < PIN_COUNT; i++) {
-			pinMode(DATA_PIN[c][i], INPUT_PULLUP);
+			pinMode(DATA_PIN_GENSIS[c][i], INPUT_PULLUP);
 		}
 	}
 
@@ -328,49 +322,51 @@ void SegaControllers32U4::readPort(byte c
 	}
 }
 
-SegaControllers32U4 controllers;
+SegaControllers32U4 controllersGenesis;
 
-GAMEPAD_CLASS gamepad;
-
-void controllerChanged(const int c) {
+void controllerChangedGenesis(const int c) {
 #ifdef DEBUG
-	controllers.printState(c);
+	controllersGenesis.printState(c);
 #endif
 
 	// if start and down are held at the same time, send menu and only menu
-	gamepad.buttons(c, controllers.currentState[c]);
-	if (controllers.down(c, SC_BTN_START) && controllers.dpad(c, SC_BTN_DOWN)) {
+	gamepad.buttons(c, controllersGenesis.currentState[c]);
+	if (controllersGenesis.down(c, SC_BTN_START) && controllersGenesis.dpad(c, SC_BTN_DOWN)) {
 		gamepad.buttons(c, 0);
 		gamepad.press(c, BUTTON_MENU);
 		gamepad.setHatSync(c, DPAD_CENTERED_OR);
 		return;
 	}
-	if (controllers.dpad(c, SC_BTN_DOWN)) {
-		if (controllers.dpad(c, SC_BTN_RIGHT)) {
+	if (controllersGenesis.dpad(c, SC_BTN_DOWN)) {
+		if (controllersGenesis.dpad(c, SC_BTN_RIGHT)) {
 			gamepad.setHatSync(c, DPAD_DOWN_RIGHT);
-		} else if (controllers.dpad(c, SC_BTN_LEFT)) {
+		} else if (controllersGenesis.dpad(c, SC_BTN_LEFT)) {
 			gamepad.setHatSync(c, DPAD_DOWN_LEFT);
 		} else {
 			gamepad.setHatSync(c, DPAD_DOWN);
 		}
-	} else if (controllers.dpad(c, SC_BTN_UP)) {
-		if (controllers.dpad(c, SC_BTN_RIGHT)) {
+	} else if (controllersGenesis.dpad(c, SC_BTN_UP)) {
+		if (controllersGenesis.dpad(c, SC_BTN_RIGHT)) {
 			gamepad.setHatSync(c, DPAD_UP_RIGHT);
-		} else if (controllers.dpad(c, SC_BTN_LEFT)) {
+		} else if (controllersGenesis.dpad(c, SC_BTN_LEFT)) {
 			gamepad.setHatSync(c, DPAD_UP_LEFT);
 		} else {
 			gamepad.setHatSync(c, DPAD_UP);
 		}
-	} else if (controllers.dpad(c, SC_BTN_RIGHT)) {
+	} else if (controllersGenesis.dpad(c, SC_BTN_RIGHT)) {
 		gamepad.setHatSync(c, DPAD_RIGHT);
-	} else if (controllers.dpad(c, SC_BTN_LEFT)) {
+	} else if (controllersGenesis.dpad(c, SC_BTN_LEFT)) {
 		gamepad.setHatSync(c, DPAD_LEFT);
 	} else {
 		gamepad.setHatSync(c, DPAD_CENTERED_OR);
 	}
 }
 
+#ifdef UNIVERSAL_MODE
+void setup_sg() {
+#else
 void setup() {
+#endif
 	setupBrLed();
 #ifdef DEBUG
 	Serial.begin(115200);
@@ -378,8 +374,12 @@ void setup() {
 	gamepad.begin();
 }
 
+#ifdef UNIVERSAL_MODE
+void loop_sg() {
+#else
 void loop() {
+#endif
 	if (gamepad.isConnected()) {
-		controllers.poll(controllerChanged);
+		controllersGenesis.poll(controllerChangedGenesis);
 	}
 }
